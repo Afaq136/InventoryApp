@@ -13,7 +13,10 @@
     "expo": "~52.0.31",
     "expo-router": "^4.0.17",
     "expo-status-bar": "~2.0.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.10.1",
     "nativewind": "^4.1.23",
+    "nodemon": "^3.1.9",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.7",
@@ -30,5 +33,16 @@
     "@types/react-native-vector-icons": "^6.4.18",
     "typescript": "^5.3.3"
   },
-  "private": true
+  "private": true,
+  "description": "**Inventory Management App -**\r _A digital solution to streamline donation and supply management for relief and nonprofit organizations._",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Afaq136/InventoryApp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Afaq136/InventoryApp/issues"
+  },
+  "homepage": "https://github.com/Afaq136/InventoryApp#readme"
 }
