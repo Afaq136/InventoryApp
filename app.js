@@ -9,10 +9,33 @@ mongoose.connect(mongoUrl).then(()=>{
 })
 .catch((e)=>{
     console.log(e);
-})
+});
+require('./UserDetails')
+
+const User=mongoose.model("Users")
+
 
 app.get("/" ,(req, res)=>{
     res.send({status: "Started"})
+
+})
+
+app.post('/register',async(req, res)=>{
+    const {email, password} = req.body;
+
+    const oldUser= await User.findOne({email:email});
+    if(oldUser){
+        return res.send({status:"error", data: "User Already Exists"})
+    }
+    try{
+        await User.create({
+            email:email,
+            password:password
+        });
+        res.send({status:"ok", data: "User Created"})
+    } catch (error){
+        res.send({status:"error", data: "Error Creating User"})
+    }
 
 })
 
