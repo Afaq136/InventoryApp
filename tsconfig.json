@@ -7,5 +7,5 @@
   "include": [
     "**/*.tsx",
     "nativewind-env.d.ts"
-  ]
+, "app/api/post+api.ts"  ]
 }
