@@ -1,21 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet, Text, StatusBar } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
-
-const DATA = [
-  {
-    id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-    title: "First Item",
-  },
-  {
-    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-    title: "Second Item",
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29d72",
-    title: "Third Item",
-  },
-];
 
 type ItemProps = { title: string };
 
@@ -25,17 +10,35 @@ const Item = ({ title }: ItemProps) => (
   </View>
 );
 
-const App = () => (
-  <SafeAreaProvider>
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={DATA}
-        renderItem={({ item }) => <Item title={item.title} />}
-        keyExtractor={(item) => item.id}
-      />
-    </SafeAreaView>
-  </SafeAreaProvider>
-);
+const Tab = () => {
+  const [items, setItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  async function fetchItems() {
+    try {
+      const response = await fetch("./api/post");
+      const data = await response.json();
+      setItems(data);
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+  }
+
+  return (
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={items}
+          renderItem={({ item }) => <Item title={item.title} />}
+          keyExtractor={(item) => item.id.toString()} // Ensure id is a string
+        />
+      </SafeAreaView>
+    </SafeAreaProvider>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -53,4 +56,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default Tab;
