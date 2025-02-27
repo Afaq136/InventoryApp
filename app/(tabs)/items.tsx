@@ -4,15 +4,18 @@ import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 
 type ItemProps = { title: string };
 
+//Component to render a single item
 const Item = ({ title }: ItemProps) => (
   <View style={styles.item}>
     <Text style={styles.title}>{title}</Text>
   </View>
 );
 
+//Main Tab Component
 const Tab = () => {
   const [items, setItems] = useState<any[]>([]);
 
+  //Fetch the items when the component mounts
   useEffect(() => {
     fetchItems();
   }, []);
