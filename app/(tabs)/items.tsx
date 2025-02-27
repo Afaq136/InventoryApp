@@ -20,6 +20,7 @@ const Tab = () => {
     fetchItems();
   }, []);
 
+  //fetch items from API
   async function fetchItems() {
     try {
       const response = await fetch("./api/post");
