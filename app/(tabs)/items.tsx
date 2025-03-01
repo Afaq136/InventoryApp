@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet, Text, StatusBar } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 
-type ItemProps = { item: string; quantity: number };
+//A list item contains the string item and the number quantity
+type ListItemProps = { _id: any; item: string; quantity: number };
 
-//Component to render a single item
-const Item = ({ item, quantity }: ItemProps) => (
-  <View style={styles.item}>
+//Component to render a single listItem, which displays the item string and the quantity number
+const ListItem = ({ item, quantity }: ListItemProps) => (
+  <View style={styles.listItem}>
     <Text style={styles.title}>
       {item}, {quantity}
     </Text>
@@ -15,7 +16,7 @@ const Item = ({ item, quantity }: ItemProps) => (
 
 //Main Tab Component
 const Tab = () => {
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<ListItemProps[]>([]);
 
   //Fetch the items when the component mounts
   useEffect(() => {
@@ -33,13 +34,18 @@ const Tab = () => {
     }
   }
 
+  //component is a flatList, containing data from items,
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <FlatList
           data={items}
           renderItem={({ item }) => (
-            <Item item={item.item} quantity={item.quantity} />
+            <ListItem
+              _id={item._id}
+              item={item.item}
+              quantity={item.quantity}
+            />
           )}
           keyExtractor={(item) => item._id.toString()} // Ensure id is a string
         />
@@ -53,7 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
   },
-  item: {
+  listItem: {
     backgroundColor: "#f9c2ff",
     padding: 20,
     marginVertical: 8,
