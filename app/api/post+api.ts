@@ -1,19 +1,49 @@
-export function GET(request: Request) {
+require("dotenv").config({ path: ".env.local" });
 
-  const data = [
-    {
-      id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-      title: "Book",
-    },
-    {
-      id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-      title: "Soup",
-    },
-    {
-      id: "58694a0f-3da1-471f-bd96-145571e29d72",
-      title: "Apple",
-    },
-  ];
+const { MongoClient } = require('mongodb');
 
-  return Response.json(data);
+const url = process.env.MONGO_URI;
+const dbName = "INVO"; // Replace with your actual database name
+const collectionName = "Qurans"; // Replace with your actual collection name
+
+async function findItems() {
+  const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
+
+  try {
+    await client.connect();
+    console.log("Connected to MongoDB!");
+
+    const db = client.db(dbName);
+    const collection = db.collection(collectionName);
+
+    // Define your query (e.g., find all documents)
+    const query = {}; // Replace with your actual search criteria
+
+    const result = await collection.find(query).toArray();
+
+    return result; // Return the array instead of logging it
+  } catch (err) {
+    console.error("Error finding document:", err);
+    return []; // Return an empty array in case of an error
+  } finally {
+    await client.close();
+  }
+}
+
+
+export async function GET(request: Request) {
+  
+  try {
+    const result = await findItems();
+
+    console.log(result);
+    // If no items are found, return an empty array
+    return Response.json(result.length > 0 ? result : []);
+  } catch (error) {
+    console.error("Error fetching items:", error);
+    
+    // Return an empty array in case of an error
+    return Response.json([]);
+  }
+
 }

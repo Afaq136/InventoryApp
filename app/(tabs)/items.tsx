@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { View, FlatList, StyleSheet, Text, StatusBar } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 
-type ItemProps = { title: string };
+type ItemProps = { item: string; quantity: number };
 
 //Component to render a single item
-const Item = ({ title }: ItemProps) => (
+const Item = ({ item, quantity }: ItemProps) => (
   <View style={styles.item}>
-    <Text style={styles.title}>{title}</Text>
+    <Text style={styles.title}>
+      {item}, {quantity}
+    </Text>
   </View>
 );
 
@@ -36,8 +38,10 @@ const Tab = () => {
       <SafeAreaView style={styles.container}>
         <FlatList
           data={items}
-          renderItem={({ item }) => <Item title={item.title} />}
-          keyExtractor={(item) => item.id.toString()} // Ensure id is a string
+          renderItem={({ item }) => (
+            <Item item={item.item} quantity={item.quantity} />
+          )}
+          keyExtractor={(item) => item._id.toString()} // Ensure id is a string
         />
       </SafeAreaView>
     </SafeAreaProvider>
