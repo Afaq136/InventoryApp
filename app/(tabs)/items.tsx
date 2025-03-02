@@ -1,34 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList, StyleSheet, Text, StatusBar } from "react-native";
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Text,
+  StatusBar,
+  SectionList,
+} from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
-
-//A list item contains the string item and the number quantity
-type ListItemProps = { _id: any; item: string; quantity: number };
-
-//Component to render a single listItem, which displays the item string and the quantity number
-const ListItem = ({ item, quantity }: ListItemProps) => (
-  <View style={styles.listItem}>
-    <Text style={styles.title}>
-      {item}, {quantity}
-    </Text>
-  </View>
-);
 
 //Main Tab Component
 const Tab = () => {
-  const [items, setItems] = useState<ListItemProps[]>([]);
+  const [data, setData] = useState<any>([]);
 
   //Fetch the items when the component mounts
   useEffect(() => {
-    fetchItems();
+    fetchData();
   }, []);
 
   //fetch items from API
-  async function fetchItems() {
+  async function fetchData() {
     try {
       const response = await fetch("./api/post");
       const data = await response.json();
-      setItems(data);
+      setData(data);
     } catch (error) {
       console.error("Error fetching items:", error);
     }
@@ -38,16 +33,20 @@ const Tab = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        <FlatList
-          data={items}
+        <SectionList
+          sections={data}
           renderItem={({ item }) => (
-            <ListItem
-              _id={item._id}
-              item={item.item}
-              quantity={item.quantity}
-            />
+            <View style={styles.item}>
+              <Text>
+                {item.item}: {item.quantity}
+              </Text>
+            </View>
           )}
-          keyExtractor={(item) => item._id.toString()} // Ensure id is a string
+          renderSectionHeader={({ section: { title } }) => (
+            <View style={styles.header}>
+              <Text>{title}</Text>
+            </View>
+          )}
         />
       </SafeAreaView>
     </SafeAreaProvider>
@@ -59,11 +58,15 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
   },
-  listItem: {
+  item: {
     backgroundColor: "#f9c2ff",
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
+  },
+  header: {
+    fontSize: 32,
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 32,
