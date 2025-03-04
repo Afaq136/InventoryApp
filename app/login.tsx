@@ -17,6 +17,8 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function Login() {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
