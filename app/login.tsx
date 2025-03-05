@@ -31,7 +31,7 @@ export default function Login() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <View style={tw`flex-1 bg-white items-center justify-center`}>
         <Image
           source={require("../assets/invo_bg.png")}
           style={tw`w-50 h-50 mb-5`}
@@ -77,6 +77,7 @@ export default function Login() {
             onPress={signIn}
             href="/(tabs)/dashboard"
             style={tw`bg-blue-500 text-white py-2 px-6 rounded-lg mb-4`}
+            
           >
             <Text style={tw`text-white text-sm text-center`}>Login</Text>
           </Link>
@@ -114,12 +115,3 @@ export default function Login() {
     </TouchableWithoutFeedback>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

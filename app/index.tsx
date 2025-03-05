@@ -5,7 +5,7 @@ import tw from "twrnc";
 
 export default function App() {
   return (
-    <View style={styles.container}>
+    <View style={tw`flex-1 bg-white items-center justify-center`}>
       <Image
         source={require("../assets/invo_bg.png")}
         style={tw`absolute top-5 w-50 h-50`}
@@ -30,12 +30,3 @@ export default function App() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
