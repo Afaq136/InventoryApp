@@ -22,17 +22,40 @@ export default function Tab() {
   //Fetch data from API
   async function fetchData() {
     try {
-      const querySnapshot = await getDocs(collection(db, "Qurans"));
-
-      const documents = querySnapshot.docs.map((doc) => ({
-        id: doc.id, // Store document ID
+      // Fetch Food collection
+      const foodSnapshot = await getDocs(collection(db, "Food"));
+      const foodDocuments = foodSnapshot.docs.map((doc) => ({
+        id: doc.id, // Change id to item to match SectionList
         quantity: doc.data().Quantity,
       }));
 
+      // Fetch Qurans collection
+      const quransSnapshot = await getDocs(collection(db, "Qurans"));
+      const quransDocuments = quransSnapshot.docs.map((doc) => ({
+        id: doc.id, // Change id to item to match SectionList
+        quantity: doc.data().Quantity,
+      }));
+
+      // Fetch Literature collection
+      const literatureSnapshot = await getDocs(collection(db, "Literature"));
+      const literatureDocuments = literatureSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        quantity: doc.data().Quantity,
+      }));
+
+      // Set formatted data for SectionList
       setData([
         {
-          title: "Quarans",
-          data: documents,
+          title: "Food",
+          data: foodDocuments,
+        },
+        {
+          title: "Literature",
+          data: literatureDocuments,
+        },
+        {
+          title: "Qurans",
+          data: quransDocuments,
         },
       ]);
     } catch (error) {
