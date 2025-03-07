@@ -18,7 +18,7 @@ import {
   deleteDoc,
   doc,
 } from "firebase/firestore";
-import { db } from "../../FirebaseConfig";
+import { db } from "@firebaseConfig";
 import tw from "twrnc";
 
 export default function Tab() {
