@@ -8,9 +8,16 @@ import {
   SectionList,
   TextInput,
   Button,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
-import { collection, getDocs, setDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  setDoc,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { db } from "../../FirebaseConfig";
 import tw from "twrnc";
 
@@ -100,6 +107,17 @@ export default function Tab() {
     }
   }
 
+  //Removes a document with a given category and item id from database
+  async function removeItem(category: string, itemId: string) {
+    try {
+      await deleteDoc(doc(db, category, itemId));
+      console.log(`Item '${itemId}' removed from ${category}`);
+      fetchData(); // Refresh list
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -132,13 +150,18 @@ export default function Tab() {
         />
         <SectionList
           sections={data}
-          renderItem={({ item }) => (
+          renderItem={({ item, section }) => (
             <View
               style={tw`border border-blue-400 rounded-lg p-4 bg-white mb-4`}
             >
               <Text>
                 {item.id}: {item.quantity}
               </Text>
+              <TouchableOpacity
+                onPress={() => removeItem(section.title, item.id)}
+              >
+                <Text style={tw`text-red-500`}>Remove</Text>
+              </TouchableOpacity>
             </View>
           )}
           renderSectionHeader={({ section: { title } }) => (
