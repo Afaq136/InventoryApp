@@ -6,13 +6,26 @@ import {
   Text,
   StatusBar,
   SectionList,
+  TextInput,
+  Button,
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 import { db } from "../../FirebaseConfig";
+import tw from "twrnc";
 
 export default function Tab() {
+  //React hook for data from the database
   const [data, setData] = useState<any[]>([]);
+
+  //Collection to add new Item to
+  const [category, setCategory] = useState("");
+
+  //String to add to database
+  const [newItem, setNewItem] = useState("");
+
+  //Quantity of item
+  const [quantity, setQuantity] = useState("");
 
   //Fetch data when the component initially mounts
   useEffect(() => {
@@ -62,14 +75,67 @@ export default function Tab() {
       console.error("Error fetching data:", error);
     }
   }
+  async function addItem() {
+    if (!category || !newItem || !quantity) {
+      console.error("All fields must be filled out.");
+      return;
+    }
+
+    try {
+      const collectionRef = collection(db, category);
+      const docRef = doc(collectionRef, newItem); // Set the document ID as the item name
+
+      await setDoc(docRef, { Quantity: Number(quantity) });
+
+      console.log("Item added successfully!");
+
+      //Reset the fields
+      setCategory("");
+      setNewItem("");
+      setQuantity("");
+
+      fetchData(); // Refresh the data
+    } catch (error) {
+      console.error("Error adding item:", error);
+    }
+  }
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
+        <TextInput
+          value={category}
+          placeholder="Enter category name"
+          autoCapitalize="none"
+          onChangeText={setCategory}
+          style={tw`border border-gray-300 rounded-lg p-2 mb-4`}
+        />
+        <TextInput
+          value={newItem}
+          placeholder="Enter name of new item"
+          autoCapitalize="none"
+          onChangeText={setNewItem}
+          style={tw`border border-gray-300 rounded-lg p-2 mb-4`}
+        />
+        <TextInput
+          value={quantity}
+          placeholder="0"
+          autoCapitalize="none"
+          onChangeText={setQuantity}
+          style={tw`border border-gray-300 rounded-lg p-2 mb-4`}
+        />
+        <Button
+          onPress={addItem}
+          title="Add item"
+          color="green"
+          accessibilityLabel="Learn more about this button"
+        />
         <SectionList
           sections={data}
           renderItem={({ item }) => (
-            <View style={styles.item}>
+            <View
+              style={tw`border border-blue-400 rounded-lg p-4 bg-white mb-4`}
+            >
               <Text>
                 {item.id}: {item.quantity}
               </Text>
@@ -77,7 +143,9 @@ export default function Tab() {
           )}
           renderSectionHeader={({ section: { title } }) => (
             <View style={styles.header}>
-              <Text>{title}</Text>
+              <Text style={tw`text-blue-500 text-lg font-semibold mb-3`}>
+                {title}
+              </Text>
             </View>
           )}
         />
