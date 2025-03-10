@@ -1,4 +1,6 @@
 import { StatusBar } from "expo-status-bar";
+import { useRouter } from 'expo-router';
+import { useSSO } from '@clerk/clerk-expo';
 import {
   Button,
   Image,
@@ -30,29 +32,21 @@ export default function Login() {
   const auth = FIREBASE_AUTH;
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const {startSSOFlow} = useSSO()
+  const router = useRouter()
+  const handleGoogleSignIn = async () => {
+      try{
+          const{createdSessionId,setActive} = await startSSOFlow({strategy: 'oauth_google'})
+          if(setActive && createdSessionId){
+              setActive({session: createdSessionId})
+              router.replace("/(Work-tabs)/new-workspace")
+          }
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: "458181400134-k6b2clkjcgftl5jqqe3p9l5i7mb87nq5.apps.googleusercontent.com", // Your Web Client ID from Google Developer Console
-    redirectUri: AuthSession.makeRedirectUri(),
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token, access_token } = response.params;
-
-      // Use the tokens to authenticate with Firebase
-      const credential = firebase.auth.GoogleAuthProvider.credential(id_token, access_token);
-      firebase.auth().signInWithCredential(credential)
-        .then((userCredential: firebase.auth.UserCredential) => {
-          const user = userCredential.user;
-          console.log("User signed in with Google:", user);
-          // Navigate to another screen after successful login (e.g. dashboard)
-        })
-        .catch((error: any) => {
-          console.log("Google Sign-In Error:", error.message);
-        });
-    }
-  }, [response]);
+      }catch(error){
+      
+          console.log('error', error)
+      }
+  }
 
   const signIn = async () => {
     setLoading(true);
@@ -130,26 +124,18 @@ export default function Login() {
           </Link>
         </TouchableOpacity>
 
+        <TouchableOpacity
+            onPress={handleGoogleSignIn}
+            >
+                <Text>Continue with Google</Text>
+            </TouchableOpacity>
+
         <View style={tw`flex-row items-center my-4`}>
           <View style={tw`flex-1 h-px bg-gray-300`} />
           <Text style={tw`mx-4 text-gray-500`}>Or</Text>
           <View style={tw`flex-1 h-px bg-gray-300`} />
         </View>
 
-        {/* Sign in with Apple Button */}
-        <TouchableOpacity
-          style={tw`bg-black text-white py-2 px-4 rounded-lg mb-4`}
-        >
-          <Text style={tw`text-white text-center`}>Sign in with Apple</Text>
-        </TouchableOpacity>
-
-        {/* Sign in with Google Button */}
-        <TouchableOpacity
-          style={tw`bg-red-500 text-white py-2 px-4 rounded-lg`}
-          onPress={() => promptAsync()} // Trigger Google sign-in flow
-        >
-          <Text style={tw`text-white text-center`}>Sign in with Google</Text>
-        </TouchableOpacity>
 
         <Text style={tw`text-sm mt-4`}>
           Don't have an account?{" "}
