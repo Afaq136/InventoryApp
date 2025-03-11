@@ -5,10 +5,16 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@firebaseConfig": ["FirebaseConfig.ts"]
+      "@/*": [
+        "./*"
+      ],
+      "@firebaseConfig": [
+        "FirebaseConfig.ts"
+      ]
     }
   },
   "include": [
+    "**/*.ts",
     "**/*.tsx",
     "nativewind-env.d.ts"
   ]

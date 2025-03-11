@@ -20,10 +20,6 @@ import { useState, useEffect } from "react";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import * as Google from "expo-auth-session/providers/google";
-import * as AuthSession from "expo-auth-session";
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -34,6 +30,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const {startSSOFlow} = useSSO()
   const router = useRouter()
+  
   const handleGoogleSignIn = async () => {
       try{
           const{createdSessionId,setActive} = await startSSOFlow({strategy: 'oauth_google'})
