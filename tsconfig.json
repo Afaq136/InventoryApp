@@ -11,6 +11,9 @@
       "@itemsService": [
         "services/itemService.ts"
       ],
+      "@darkModeContext" : [
+        "app/context/DarkModeContext.tsx"
+      ],
       "@/*": [
         "./*"
       ]
