@@ -1,8 +1,8 @@
 import React from "react";
 import { Stack } from "expo-router";
-import { AuthProvider, useAuth } from "../app/context/auth";
+import { AuthProvider, useAuth } from "@authContext";
 import { View, ActivityIndicator } from "react-native";
-import { ThemeProvider } from "./context/DarkModeContext";
+import { ThemeProvider } from "@darkModeContext";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import { tokenCache } from "@/cache";
 
