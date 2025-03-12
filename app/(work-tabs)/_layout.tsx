@@ -1,9 +1,21 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
+import { useTheme } from './../context/DarkModeContext'; 
 
 export default function TabLayout() {
+  const { darkMode } = useTheme(); 
+
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: "#00bcd4" }}> //blue when clicked
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: "#00bcd4", 
+        tabBarInactiveTintColor: darkMode ? "#888" : "#666", 
+        tabBarStyle: {
+          backgroundColor: darkMode ? "#121212" : "#fff", 
+          borderTopColor: darkMode ? "#333" : "#ddd", 
+        },
+      }}
+    >
       <Tabs.Screen
         name="dashboard"
         options={{
@@ -40,8 +52,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
-  
     </Tabs>
   );
 }

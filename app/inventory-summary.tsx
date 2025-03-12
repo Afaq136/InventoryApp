@@ -3,56 +3,58 @@ import { router, useRouter } from 'expo-router';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import tw from 'twrnc';
+import { useTheme } from './context/DarkModeContext'; 
 
 export default function InventorySummary() {
+  const { darkMode } = useTheme(); 
+
   const data = [
     { id: '1', code: 'SIK7T0002', name: 'Papers', category: 'All Items', quantity: '13 units' },
     { id: '2', code: 'SIK7T0001', name: 'Jacket', category: 'Clothing', quantity: '1 unit' },
   ];
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-white p-5`}>
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[tw`flex-1 p-5`, darkMode ? tw`bg-black` : tw`bg-white`]}>
+      <View style={[styles.container, darkMode && { backgroundColor: '#333' }]}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={tw`p-2`}>
+            <Ionicons name="arrow-back" size={28} color={darkMode ? '#00bcd4' : '#00bcd4'} />
+          </TouchableOpacity>
+          <Text style={[styles.headerText, darkMode && { color: 'white' }]}>INVENTORY SUMMARY</Text>
+          <TouchableOpacity>
+            <Ionicons name="ellipsis-horizontal" size={24} color={darkMode ? 'white' : 'black'} />
+          </TouchableOpacity>
+        </View>
 
-      <TouchableOpacity onPress={() => router.back()} style={tw`p-2`}>
-        <Ionicons name="arrow-back" size={28} color="#00bcd4" />
-      </TouchableOpacity>
-        <Text style={styles.headerText}>INVENTORY SUMMARY</Text>
-        <TouchableOpacity>
-          <Ionicons name="ellipsis-horizontal" size={24} color="black" />
+        <View style={styles.summary}>
+          <Text style={[styles.summaryText, darkMode && { color: 'white' }]}>Total Quantity</Text>
+          <Text style={[styles.summaryValue, darkMode && { color: 'white' }]}>14 units</Text>
+          <Text style={[styles.summaryText, darkMode && { color: 'white' }]}>Total Value</Text>
+          <Text style={[styles.summaryValue, darkMode && { color: 'white' }]}>$0</Text>
+        </View>
+
+        <View style={styles.listHeader}>
+          <Text style={[styles.listHeaderText, darkMode && { color: 'white' }]}>Last Updated</Text>
+          <Ionicons name="filter" size={20} color={darkMode ? 'white' : 'black'} />
+        </View>
+
+        <FlatList
+          data={data}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={[styles.item, darkMode && { backgroundColor: '#444' }]}>
+              <Text style={[styles.itemCode, darkMode && { color: 'white' }]}>{item.code}</Text>
+              <Text style={[styles.itemName, darkMode && { color: 'white' }]}>{item.name}</Text>
+              <Text style={[styles.itemCategory, darkMode && { color: 'white' }]}>{item.category}</Text>
+              <Text style={[styles.itemQuantity, darkMode && { color: 'white' }]}>{item.quantity}</Text>
+            </View>
+          )}
+        />
+
+        <TouchableOpacity style={styles.fab}>
+          <Ionicons name="share-social" size={24} color="white" />
         </TouchableOpacity>
       </View>
-
-      <View style={styles.summary}>
-        <Text style={styles.summaryText}>Total Quantity</Text>
-        <Text style={styles.summaryValue}>14 units</Text>
-        <Text style={styles.summaryText}>Total Value</Text>
-        <Text style={styles.summaryValue}>$0</Text>
-      </View>
-
-      <View style={styles.listHeader}>
-        <Text style={styles.listHeaderText}>Last Updated</Text>
-        <Ionicons name="filter" size={20} color="white" />
-      </View>
-
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.itemCode}>{item.code}</Text>
-            <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={styles.itemCategory}>{item.category}</Text>
-            <Text style={styles.itemQuantity}>{item.quantity}</Text>
-          </View>
-        )}
-      />
-
-      <TouchableOpacity style={styles.fab}>
-        <Ionicons name="share-social" size={24} color="white" />
-      </TouchableOpacity>
-    </View>
     </SafeAreaView>
   );
 }
@@ -60,7 +62,6 @@ export default function InventorySummary() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
     padding: 20,
   },
   header: {
@@ -70,7 +71,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerText: {
-    color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   item: {
-    backgroundColor: '#fff',
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,

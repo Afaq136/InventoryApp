@@ -15,8 +15,10 @@ import { router } from "expo-router";
 import { db } from "@firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import { addItem } from "@itemsService";
+import { useTheme } from "./context/DarkModeContext";
 
 export default function AddItem() {
+  const { darkMode } = useTheme();
   const [hasVariants, setHasVariants] = useState<boolean>(false);
 
   const [itemName, setItemName] = useState<string>("");
@@ -34,8 +36,10 @@ export default function AddItem() {
   }
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-white p-5`}>
-      <View style={styles.container}>
+    <SafeAreaView
+      style={[tw`flex-1 p-5`, darkMode ? tw`bg-black` : tw`bg-white`]}
+    >
+      <View style={[styles.container, darkMode && { backgroundColor: "#333" }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={tw`p-2`}>
             <Ionicons name="arrow-back" size={28} color="#00bcd4" />
@@ -45,51 +49,63 @@ export default function AddItem() {
               const added = await addItem({
                 name: itemName,
                 category: "Uncategorized",
-                quantity: quantity,
-                minLevel: minLevel,
-                price: price,
-                totalValue: totalValue,
+                quantity,
+                minLevel,
+                price,
+                totalValue,
               });
-              if (added) {
-                clearFields(); // Only clear if item was successfully added
-              }
+              if (added) clearFields();
             }}
           >
-            <Text style={tw`text-blue-500`}>Save</Text>
+            <Text style={[tw`text-blue-500`, darkMode && { color: "white" }]}>
+              Save
+            </Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.photoContainer}>
+        <View
+          style={[
+            styles.photoContainer,
+            darkMode && { backgroundColor: "#555" },
+          ]}
+        >
           <Ionicons name="camera-outline" size={64} color="#00bcd4" />
-          <Text>Add photos</Text>
+          <Text style={darkMode ? { color: "white" } : {}}>Add photos</Text>
         </View>
 
-        <Text style={tw`text-lg font-bold mt-4`}>Enter Item Name</Text>
+        <Text
+          style={[tw`text-lg font-bold mt-4`, darkMode && { color: "white" }]}
+        >
+          Enter Item Name
+        </Text>
         <TextInput
           placeholder="Enter item name"
           value={itemName}
           onChangeText={setItemName}
-          style={tw`border-b border-gray-300 mb-4`}
+          style={[
+            tw`border-b mb-4`,
+            darkMode ? { borderColor: "#fff" } : { borderColor: "#ccc" },
+          ]}
         />
 
         <View style={styles.row}>
           <View style={styles.inputContainer}>
-            <Text>Quantity</Text>
+            <Text style={darkMode ? { color: "white" } : {}}>Quantity</Text>
             <TextInput
               placeholder="-"
               value={quantity}
               onChangeText={setQuantity}
-              style={styles.input}
+              style={[styles.input, darkMode && { backgroundColor: "#444" }]}
               keyboardType="numeric"
             />
           </View>
           <View style={styles.inputContainer}>
-            <Text>Min Level</Text>
+            <Text style={darkMode ? { color: "white" } : {}}>Min Level</Text>
             <TextInput
               placeholder="-"
               value={minLevel}
               onChangeText={setMinLevel}
-              style={styles.input}
+              style={[styles.input, darkMode && { backgroundColor: "#444" }]}
               keyboardType="numeric"
             />
           </View>
@@ -97,30 +113,44 @@ export default function AddItem() {
 
         <View style={styles.row}>
           <View style={styles.inputContainer}>
-            <Text>Price</Text>
+            <Text style={darkMode ? { color: "white" } : {}}>Price</Text>
             <TextInput
               placeholder="-"
               value={price}
               onChangeText={setPrice}
-              style={styles.input}
+              style={[styles.input, darkMode && { backgroundColor: "#444" }]}
               keyboardType="numeric"
             />
           </View>
           <View style={styles.inputContainer}>
-            <Text>Total Value</Text>
+            <Text style={darkMode ? { color: "white" } : {}}>Total Value</Text>
             <TextInput
               placeholder="-"
               value={totalValue}
               onChangeText={setTotalValue}
-              style={styles.input}
+              style={[styles.input, darkMode && { backgroundColor: "#444" }]}
               keyboardType="numeric"
             />
           </View>
         </View>
 
         <View style={styles.qrContainer}>
-          <TouchableOpacity style={styles.qrButton}>
-            <Text>Create Custom Label</Text>
+          <TouchableOpacity
+            style={[styles.qrButton, darkMode && { backgroundColor: "#444" }]}
+          >
+            <Text style={darkMode ? { color: "white" } : {}}>
+              Create Custom Label
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.qrButton, darkMode && { backgroundColor: "#444" }]}
+          >
+            <Text style={darkMode ? { color: "white" } : {}}>
+              Link QR / Barcode
+            </Text>
+            <TouchableOpacity style={styles.qrButton}>
+              <Text>Create Custom Label</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
           <TouchableOpacity style={styles.qrButton}>
             <Text>Link QR / Barcode</Text>
@@ -128,7 +158,9 @@ export default function AddItem() {
         </View>
 
         <View style={styles.switchContainer}>
-          <Text>This item has variants</Text>
+          <Text style={darkMode ? { color: "white" } : {}}>
+            This item has variants
+          </Text>
           <Switch value={hasVariants} onValueChange={setHasVariants} />
         </View>
       </View>

@@ -11,9 +11,16 @@ import tw from "twrnc";
 import { Ionicons } from "@expo/vector-icons";
 import { fetchItemsByFolder, removeItem, ItemsByFolder } from "@itemsService";
 import { useRouter } from "expo-router";
+import { useTheme } from "../context/DarkModeContext";
 
 export default function Items() {
+  const { darkMode } = useTheme();
   const router = useRouter();
+
+  const containerStyle = darkMode
+    ? styles.containerDark
+    : styles.containerLight;
+  const textStyle = darkMode ? tw`text-white` : tw`text-gray-700`;
 
   // folders is an array of strings where each string represents a folder name.
   const [folders, setFolders] = useState<string[]>([]);
@@ -36,13 +43,10 @@ export default function Items() {
   // modalVisible controls the visibility of the modal for adding new folders or items.
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
-  // isAddingFolder is a boolean that helps toggle between adding a folder or adding an item.
   const [isAddingFolder, setIsAddingFolder] = useState<boolean>(false);
 
-  // addFolder is called when the user adds a new folder.
   const addFolder = () => {
     if (newFolder.trim()) {
-      // Add the new folder name to the folders array.
       setFolders([...folders, newFolder]);
 
       // Create a new entry in the items object for the new folder with an empty array.
@@ -50,8 +54,6 @@ export default function Items() {
 
       // Clear the newFolder input field.
       setNewFolder("");
-
-      // Close the modal after adding the folder.
       setModalVisible(false);
     }
   };
@@ -67,9 +69,9 @@ export default function Items() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={containerStyle}>
       <View style={tw`flex-row justify-between items-center mb-4`}>
-        <Text style={tw`text-xl font-bold mb-4`}>Items</Text>
+        <Text style={[tw`text-xl font-bold mb-4`, textStyle]}>Items</Text>
         <TouchableOpacity style={styles.iconButton} onPress={loadItems}>
           <Ionicons name="refresh-outline" size={24} color="#00bcd4" />
         </TouchableOpacity>
@@ -87,10 +89,10 @@ export default function Items() {
       {folders.length === 0 && (
         <View style={styles.emptyContainer}>
           <Ionicons name="document-text-outline" size={64} color="#00bcd4" />
-          <Text style={tw`text-lg mt-4`}>
+          <Text style={[tw`text-lg mt-4`, darkMode && tw`text-white`]}>
             Your Inventory is Currently Empty
           </Text>
-          <Text>Add new items or</Text>
+          <Text style={[darkMode && tw`text-white`]}>Add new items or</Text>
           <TouchableOpacity style={styles.importButton}>
             <Text style={tw`text-blue-500`}>Import from File</Text>
           </TouchableOpacity>
@@ -107,6 +109,8 @@ export default function Items() {
             style={[
               styles.folder,
               selectedFolder === folderName && styles.selectedFolder, // Apply different style when folder is selected
+              darkMode && styles.folderDark,
+              selectedFolder === folderName && styles.selectedFolder, // Apply different style when folder is selected
             ]}
           >
             <TouchableOpacity onPress={() => setSelectedFolder(folderName)}>
@@ -114,6 +118,7 @@ export default function Items() {
                 style={[
                   tw`text-lg font-bold`,
                   selectedFolder === folderName && tw`text-cyan-500`, // Change text color when selected
+                  darkMode && tw`text-white`,
                 ]}
               >
                 {folderName}
@@ -124,16 +129,25 @@ export default function Items() {
                 data={itemsByFolder[folderName]} // Use folderName to get items from items object
                 keyExtractor={(item) => item.id} // Use document id as key
                 renderItem={({ item }) => (
-                  <View style={styles.item}>
+                  <View style={[styles.item, darkMode && styles.itemDark]}>
                     <Text>
-                      <Text style={tw`font-bold`}>{item.name}</Text>
+                      <Text style={[tw`font-bold`, textStyle]}>
+                        {item.name}
+                      </Text>
                       {"\n"}
-                      <Text style={tw`font-bold`}>Stock:</Text> {item.quantity}{" "}
-                      / {item.minLevel}
+                      <Text style={[tw`font-bold`, textStyle]}>
+                        Stock:
+                      </Text>{" "}
+                      {item.quantity}/ {item.minLevel}
                       {"\n"}
-                      <Text style={tw`font-bold`}>Price:</Text> {item.price}
+                      <Text style={[tw`font-bold`, textStyle]}>
+                        Price:
+                      </Text>{" "}
+                      {item.price}
                       {"\n"}
-                      <Text style={tw`font-bold`}>Total Value:</Text>{" "}
+                      <Text style={[tw`font-bold`, textStyle]}>
+                        Total Value:
+                      </Text>
                       {item.totalValue}
                     </Text>
 
@@ -212,9 +226,14 @@ export default function Items() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  containerLight: {
     flex: 1,
     backgroundColor: "#f5f5f5",
+    padding: 20,
+  },
+  containerDark: {
+    flex: 1,
+    backgroundColor: "#121212",
     padding: 20,
   },
   searchContainer: {
@@ -251,8 +270,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
   },
+  folderDark: {
+    backgroundColor: "#333",
+  },
   selectedFolder: {
-    backgroundColor: "#e0f7fa",
+    backgroundColor: "#00695c",
   },
   item: {
     backgroundColor: "#fff",
@@ -260,6 +282,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 5,
     marginLeft: 20,
+  },
+  itemDark: {
+    backgroundColor: "#444",
   },
   fab: {
     position: "absolute",
@@ -293,79 +318,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
-const getStyles = (theme: string) => {
-  const isDarkMode = theme === "dark";
-
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: isDarkMode ? "black" : "#f5f5f5",
-      padding: 20,
-    },
-    headerText: {
-      fontSize: 24,
-      fontWeight: "bold",
-      marginBottom: 4,
-      color: isDarkMode ? "white" : "#00bcd4",
-    },
-    avatar: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: "#00bcd4",
-      justifyContent: "center",
-      alignItems: "center",
-      marginRight: 10,
-    },
-    avatarText: {
-      color: "white",
-    },
-    profileCard: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: isDarkMode ? "#333" : "#ffffff",
-      padding: 15,
-      borderRadius: 10,
-      marginBottom: 10,
-    },
-    link: {
-      color: "#00bcd4",
-      fontWeight: "bold",
-    },
-    card: {
-      backgroundColor: isDarkMode ? "#444" : "#ffffff",
-      padding: 15,
-      borderRadius: 10,
-      marginBottom: 10,
-      flexDirection: "row",
-      justifyContent: "space-between",
-    },
-    cardText: {
-      color: isDarkMode ? "white" : "black",
-    },
-    flexText: {
-      flex: 1,
-      color: isDarkMode ? "white" : "black",
-    },
-    text: {
-      color: isDarkMode ? "white" : "black",
-      marginTop: 4,
-      marginBottom: 2,
-    },
-    row: {
-      flexDirection: "row",
-      alignItems: "center",
-    },
-    signOutButton: {
-      backgroundColor: "#ff4d4d",
-      paddingVertical: 10,
-      borderRadius: 10,
-      marginTop: 20,
-    },
-    signOutButtonText: {
-      textAlign: "center",
-      color: "white",
-    },
-  });
-};

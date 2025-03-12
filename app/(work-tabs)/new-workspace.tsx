@@ -2,15 +2,21 @@ import { Link } from 'expo-router';
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import tw from "twrnc";
+import { useTheme } from './../context/DarkModeContext'; 
 
 export default function NewWorkspace() {
   const [organizationName, setOrganizationName] = useState('');
+  const { darkMode } = useTheme(); 
+
+  const backgroundColor = darkMode ? '#121212' : '#ffffff';
+  const textColor = darkMode ? '#ffffff' : '#000000';
+  const inputBorderColor = darkMode ? '#444444' : '#ccc';
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-white p-5`}>
+    <SafeAreaView style={[tw`flex-1`, { backgroundColor }]}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>New Organization</Text>
+          <Text style={[styles.headerText, { color: textColor }]}>New Organization</Text>
           <TouchableOpacity>
             <Link
               href={{
@@ -27,7 +33,7 @@ export default function NewWorkspace() {
           placeholder="Business Name"
           value={organizationName}
           onChangeText={setOrganizationName}
-          style={styles.input}
+          style={[styles.input, { borderColor: inputBorderColor, color: textColor }]}
           maxLength={40}
         />
       </View>
@@ -38,7 +44,6 @@ export default function NewWorkspace() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     padding: 20,
   },
   header: {
@@ -52,7 +57,6 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 5,
     padding: 10,
   },

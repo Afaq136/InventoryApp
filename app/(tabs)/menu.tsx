@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, Switch, TouchableOpacity, StyleSheet } from 'react-native';
-import tw from 'twrnc';
+import { useTheme } from './../context/DarkModeContext';
 import { Link, router } from "expo-router";
 
+
 export default function Menu() {
+  const { darkMode, toggleDarkMode } = useTheme(); 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 
-  // Toggle between light and dark mode
-  const theme = darkModeEnabled ? 'dark' : 'light';
+  const theme = darkMode ? 'dark' : 'light';
 
-  const styles = getStyles(theme); // Get styles based on the current theme
+  const styles = getStyles(theme); 
 
   return (
     <View style={styles.container}>
@@ -49,15 +49,17 @@ export default function Menu() {
       </View>
 
       <View style={styles.card}>
-      <Text style={styles.flexText}>Display</Text>
-        <View style={tw`flex-row items-center`}>
-          <Switch
-            value={darkModeEnabled}
-            onValueChange={setDarkModeEnabled}
-          />
-        </View>
-      </View>
-
+  <Text style={styles.flexText}>Display</Text>
+  <View style={styles.row}>
+    <Text style={styles.text}>{darkMode ? "Dark Mode" : "Light Mode"}</Text> 
+    <Switch
+      value={darkMode} 
+      onValueChange={toggleDarkMode} 
+      trackColor={{ false: "#ccc", true: "#00bcd4" }}
+      thumbColor={darkMode ? "#00bcd4" : "#f4f3f4"}
+    />
+  </View>
+</View>
       <Link href="/" style={styles.signOutButton}>
         <Text style={styles.signOutButtonText}>Sign Out</Text>
       </Link>
@@ -65,7 +67,6 @@ export default function Menu() {
   );
 }
 
-// Dynamically change styles based on the theme
 const getStyles = (theme: string) => {
   const isDarkMode = theme === 'dark';
   
@@ -79,8 +80,8 @@ const getStyles = (theme: string) => {
       fontSize: 24,
       fontWeight: 'bold',
       marginBottom: 4,
-      color: isDarkMode ? 'white' : '#00bcd4',
-    },
+      color: isDarkMode ? 'white' : 'black',
+    },    
     avatar: {
       width: 40,
       height: 40,
@@ -141,4 +142,3 @@ const getStyles = (theme: string) => {
     },
   });
 };
-

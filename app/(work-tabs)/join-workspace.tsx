@@ -2,26 +2,33 @@ import { Link } from 'expo-router';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import tw from "twrnc";
+import { useTheme } from './../context/DarkModeContext'; 
 
 export default function JoinWorkspace() {
+  const { darkMode } = useTheme(); 
+
+  const backgroundColor = darkMode ? '#121212' : '#ffffff';
+  const textColor = darkMode ? '#ffffff' : '#000000';
+  const infoTextColor = darkMode ? '#888' : '#888';
+  const borderColor = darkMode ? '#444444' : '#ccc';
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Join Organization</Text>
+        <Text style={[styles.headerText, { color: textColor }]}>Join Organization</Text>
         <TouchableOpacity>
-  <Link
-    href="/(tabs)/dashboard"
-    style={tw`bg-blue-500 text-white py-2 px-6 rounded-lg mb-4`}
-  >
-    <Text style={tw`text-white text-sm text-center`}>Next</Text>
-  </Link>
-</TouchableOpacity>
+          <Link
+            href="/(tabs)/dashboard"
+            style={tw`bg-blue-500 text-white py-2 px-6 rounded-lg mb-4`}
+          >
+            <Text style={tw`text-white text-sm text-center`}>Next</Text>
+          </Link>
+        </TouchableOpacity>
       </View>
-      <Text style={styles.title}>Enter Invite Code</Text>
+      <Text style={[styles.title, { color: textColor }]}>Enter Invite Code</Text>
       <View style={styles.codeContainer}>
-        {/* Add code input fields here */}
       </View>
-      <Text style={styles.infoText}>
+      <Text style={[styles.infoText, { color: infoTextColor }]}>
         In case you have no code or it's expired, please request a new code from the workspace owner.
       </Text>
     </View>
@@ -31,7 +38,6 @@ export default function JoinWorkspace() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     padding: 20,
   },
   header: {
