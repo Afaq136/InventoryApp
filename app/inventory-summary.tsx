@@ -1,9 +1,11 @@
 import React from 'react';
 import { router, useRouter } from 'expo-router';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, SafeAreaView, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import tw from 'twrnc';
 import { useTheme } from './context/DarkModeContext'; 
+import { BarChart } from 'react-native-chart-kit';
+
 
 export default function InventorySummary() {
   const { darkMode } = useTheme(); 
@@ -12,6 +14,12 @@ export default function InventorySummary() {
     { id: '1', code: 'SIK7T0002', name: 'Papers', category: 'All Items', quantity: '13 units' },
     { id: '2', code: 'SIK7T0001', name: 'Jacket', category: 'Clothing', quantity: '1 unit' },
   ];
+
+  const chartWidth = Dimensions.get("window").width - 20;
+  const chartData = {
+    labels: ['Papers', 'Jacket'],
+    datasets: [{ data: [13, 1] }],
+  };
 
   return (
     <SafeAreaView style={[tw`flex-1 p-5`, darkMode ? tw`bg-black` : tw`bg-white`]}>
@@ -49,6 +57,24 @@ export default function InventorySummary() {
               <Text style={[styles.itemQuantity, darkMode && { color: 'white' }]}>{item.quantity}</Text>
             </View>
           )}
+        />
+
+<Text style={[styles.chartTitle, { color: darkMode ? '#3b82f6' : '#3b82f6' }]}>Inventory Breakdown</Text>
+const screenWidth = Dimensions.get("window").width;
+        <BarChart
+          data={chartData}
+          width={chartWidth}
+          height={220}
+          yAxisLabel=""
+          yAxisSuffix=" units"
+          chartConfig={{
+            backgroundGradientFrom: darkMode ? "#1F2937" : "#fff",
+            backgroundGradientTo: darkMode ? "#1F2937" : "#fff",
+            color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+            labelColor: (opacity = 1) => darkMode ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+          }}
+          verticalLabelRotation={30}
+          style={{ marginVertical: 10, borderRadius: 10 }}
         />
 
         <TouchableOpacity style={styles.fab}>
@@ -126,5 +152,11 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  chartTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 10,
   },
 });
