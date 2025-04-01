@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { useTheme } from "@darkModeContext";
 import { getDynamicStyles } from "@styles";
 import { getItem } from "@itemsService";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import tw from "twrnc";
 import { Ionicons } from "@expo/vector-icons"; // Assuming you're using Expo for icons
 import { editItem } from "@itemsService";
@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import ItemAnalytics from "@/app/item-analytics";
 import { Item } from "@/types/types";
+import Tags from "react-native-tags";
 
 export default function EditItem() {
   const { darkMode } = useTheme();
@@ -18,23 +19,10 @@ export default function EditItem() {
   // These styles change dynamically based on dark mode
   const dynamicStyles = getDynamicStyles(darkMode);
 
-  const [currentItem, setCurrentItem] = useState<Item | null>();
+  const [item, setItem] = useState<Item | null>();
+  const [originalItem, setOriginalItem] = useState<Item | null>();
 
-  const [itemName, setItemName] = useState<string>("");
-  const [category, setCategory] = useState<string>("");
-  const [quantity, setQuantity] = useState<string>("");
-  const [minLevel, setMinLevel] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
-  const [totalValue, setTotalValue] = useState<string>("");
-
-  function updateFields(newItem: Item) {
-    setItemName(newItem?.name ?? "");
-    setCategory(newItem?.category ?? "");
-    setQuantity(String(newItem?.quantity ?? ""));
-    setMinLevel(String(newItem?.minLevel ?? ""));
-    setPrice(String(newItem?.price ?? ""));
-    setTotalValue(String(newItem?.totalValue ?? ""));
-  }
+  const [loading, setLoading] = useState(true);
 
   const { id } = useLocalSearchParams();
 
@@ -43,80 +31,87 @@ export default function EditItem() {
 
   const navigation = useNavigation();
 
-  //Each time itemId changes, get the the new item from firebase
+  //Each time itemId changes, update the current item from firebase
   useEffect(() => {
     const fetchItem = async () => {
       if (itemId) {
         try {
-          const item = await getItem(itemId);
-
-          if (item) {
-            //Update the fields based on the new item
-            setCurrentItem(item);
-            updateFields(item);
-          } else {
-            setCurrentItem(null); // Handle the case when no item is found
-          }
+          const fetchedItem = await getItem(itemId);
+          //Update the fields based on the new item
+          setItem(fetchedItem);
+          setOriginalItem(fetchedItem);
         } catch (error) {
           console.error("Error fetching item:", error);
-          setCurrentItem(null); // Handle error case
+        } finally {
+          setLoading(false);
         }
       }
     };
+    fetchItem();
+  }, [id]);
 
-    if (itemId) {
-      fetchItem();
+  const handleSave = async () => {
+    if (!item || !originalItem) return;
+
+    const noChanges =
+      (item.name ?? "") === (originalItem.name ?? "") &&
+      (item.category ?? "") === (originalItem.category ?? "") &&
+      (item.quantity ?? 0) === (originalItem.quantity ?? 0) &&
+      (item.minLevel ?? 0) === (originalItem.minLevel ?? 0) &&
+      (item.price ?? 0) === (originalItem.price ?? 0) &&
+      (item.tags ?? []).join(",") === (originalItem.tags ?? []).join(",");
+
+    if (noChanges) {
+      console.log("No Changes", "No changes were made to the item.");
+      return;
     }
-  }, [itemId]);
+
+    try {
+      await editItem(originalItem, item); // Update item in the database
+      router.push("/items");
+    } catch (error) {
+      console.error("Error", "Failed to save item");
+    }
+  };
 
   //Put a save button on the right side of the header
-  useEffect(() => {
+  //useLayoutEffect ensures the navigation bar updates before the UI is drawn
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         //Save Button
-        <TouchableOpacity
-          style={tw`p-2`}
-          onPress={async () => {
-            const newItem: Item = {
-              id: itemId,
-              name: itemName,
-              category,
-              quantity: Number(quantity),
-              minLevel: Number(minLevel),
-              price: Number(price),
-              totalValue: Number(totalValue),
-            };
-
-            if (currentItem) {
-              const editSuccess = await editItem(currentItem, newItem);
-              if (editSuccess) {
-                // Update the item and fields when item is successfully edited
-                setCurrentItem(newItem);
-                updateFields(newItem);
-                router.push("/items");
-              }
-            }
-          }}
-        >
+        <TouchableOpacity style={tw`p-2`} onPress={handleSave}>
           {/* Save Icon */}
           <Ionicons name="save" size={28} color="#00bcd4" style={tw`mx-2`} />
         </TouchableOpacity>
       ),
     });
-  }, [navigation, itemName, category, quantity, minLevel, price, totalValue]);
+  }, [navigation, item]);
+
+  const handleChange = (
+    field: keyof Omit<Item, "id">,
+    value: string | number | string[]
+  ) => {
+    if (!field) return;
+
+    setItem((prev) => ({
+      ...prev!,
+      [field]: value,
+    }));
+  };
 
   return (
     <SafeAreaView style={dynamicStyles.containerStyle}>
       {/* Label for item being edited */}
       <View style={dynamicStyles.header}>
         <Text style={[dynamicStyles.textStyle, dynamicStyles.headerTextStyle]}>
-          {currentItem
-            ? `Item Name: ${currentItem.name}`
+          {item && !loading
+            ? `Item Name: ${item.name}`
             : `No item found for ID: ${itemId}`}
         </Text>
       </View>
       {/* Display text inputs only if currentItem exists */}
-      {currentItem && (
+      {item && !loading && (
         <View style={tw`gap-3`}>
           {/*Row 1 of text inputs*/}
           <View style={dynamicStyles.row}>
@@ -127,8 +122,8 @@ export default function EditItem() {
               </Text>
               <TextInput
                 placeholder="Enter item name"
-                value={itemName}
-                onChangeText={setItemName}
+                value={item.name}
+                onChangeText={(text) => handleChange("name", text)}
                 style={[dynamicStyles.textInputStyle]}
               />
             </View>
@@ -139,8 +134,8 @@ export default function EditItem() {
               </Text>
               <TextInput
                 placeholder="-"
-                value={category}
-                onChangeText={setCategory}
+                value={item.category}
+                onChangeText={(text) => handleChange("category", text)}
                 style={[dynamicStyles.textInputStyle]}
               />
             </View>
@@ -154,8 +149,8 @@ export default function EditItem() {
               </Text>
               <TextInput
                 placeholder="-"
-                value={quantity}
-                onChangeText={setQuantity}
+                value={String(item.quantity)}
+                onChangeText={(text) => handleChange("quantity", text)}
                 style={[dynamicStyles.textInputStyle]}
                 keyboardType="numeric"
               />
@@ -167,8 +162,8 @@ export default function EditItem() {
               </Text>
               <TextInput
                 placeholder="-"
-                value={minLevel}
-                onChangeText={setMinLevel}
+                value={String(item.minLevel)}
+                onChangeText={(text) => handleChange("minLevel", text)}
                 style={[dynamicStyles.textInputStyle]}
                 keyboardType="numeric"
               />
@@ -183,8 +178,8 @@ export default function EditItem() {
               </Text>
               <TextInput
                 placeholder="-"
-                value={price}
-                onChangeText={setPrice}
+                value={String(item.price)}
+                onChangeText={(text) => handleChange("price", text)}
                 style={[dynamicStyles.textInputStyle]}
                 keyboardType="numeric"
               />
@@ -196,13 +191,48 @@ export default function EditItem() {
               </Text>
               <TextInput
                 placeholder="-"
-                value={totalValue}
-                onChangeText={setTotalValue}
+                value={String(item.totalValue)}
+                onChangeText={(text) => handleChange("totalValue", text)}
                 style={[dynamicStyles.textInputStyle]}
                 keyboardType="numeric"
               />
             </View>
           </View>
+          {/* https://github.com/peterp/react-native-tags#readme */}
+          <Tags
+            key={item.id} //update when item.id is changed
+            initialText=""
+            textInputProps={{
+              placeholder: "Enter tag",
+            }}
+            initialTags={item.tags}
+            onChangeTags={(tags) => handleChange("tags", tags)}
+            onTagPress={(index, tagLabel, event, deleted) =>
+              console.log(
+                index,
+                tagLabel,
+                event,
+                deleted ? "deleted" : "not deleted"
+              )
+            }
+            containerStyle={tw`justify-center gap-1`}
+            inputStyle={{ backgroundColor: "white" }}
+            renderTag={({
+              tag,
+              index,
+              onPress,
+              deleteTagOnPress,
+              readonly,
+            }) => (
+              <TouchableOpacity
+                style={tw`bg-red-500`}
+                key={`${tag}-${index}`}
+                onPress={onPress}
+              >
+                <Text>{tag}</Text>
+              </TouchableOpacity>
+            )}
+          />
         </View>
       )}
     </SafeAreaView>

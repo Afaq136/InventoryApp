@@ -74,7 +74,7 @@ export default function TabLayout() {
                 size={24}
                 color="#00bcd4"
                 style={tw`mx-2`}
-              />{" "}
+              />
             </TouchableOpacity>
           ),
 

@@ -8,7 +8,7 @@ import {
   FlatList,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useTheme } from "../context/DarkModeContext";
+import { useTheme } from "@darkModeContext";
 
 export default function LocatePage() {
   const { darkMode } = useTheme();
@@ -72,12 +72,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   searchInputDark: {
-    borderColor: 'white',  
-    backgroundColor: '#374151',  
-    color: '#fff',  
+    borderColor: "white",
+    backgroundColor: "#374151",
+    color: "#fff",
   },
   containerDark: {
-    backgroundColor: '#1F2937', 
+    backgroundColor: "#1F2937",
   },
   header: {
     backgroundColor: "#007b83",
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerDark: {
-    backgroundColor: '#007b83',  
+    backgroundColor: "#007b83",
   },
   headerText: {
     color: "white",
@@ -104,13 +104,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   addButtonDark: {
-    backgroundColor: '#00bcd4',  
+    backgroundColor: "#00bcd4",
   },
   addButtonText: {
     color: "white",
   },
   addButtonTextDark: {
-    color: 'white',  
+    color: "white",
   },
   searchInput: {
     borderColor: "#ccc",
@@ -128,13 +128,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   mapPlaceholderDark: {
-    backgroundColor: '#e0e0e0', 
+    backgroundColor: "#e0e0e0",
   },
   mapText: {
     color: "#888",
   },
   mapTextDark: {
-    color: '#888',  
+    color: "#888",
   },
   locationItem: {
     backgroundColor: "#fff",
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   locationItemDark: {
-    backgroundColor: '#374151',  
+    backgroundColor: "#374151",
   },
   locationName: {
     fontWeight: "bold",

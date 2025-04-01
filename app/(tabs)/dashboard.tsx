@@ -142,10 +142,26 @@ export default function Dashboard() {
           onPress={() => router.push("/addItems")}
           style={dynamicStyles.actionButton}
         >
-          <Text style={[tw`font-semibold`, dynamicStyles.textStyle, { color: '#06b6d4' }]}>Add Item</Text>
+          <Text
+            style={[
+              tw`font-semibold`,
+              dynamicStyles.textStyle,
+              { color: "#06b6d4" },
+            ]}
+          >
+            Add Item
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={dynamicStyles.actionButton}>
-          <Text style={[tw`font-semibold`, dynamicStyles.textStyle, { color: '#06b6d4' }]}>Search via QR</Text>
+          <Text
+            style={[
+              tw`font-semibold`,
+              dynamicStyles.textStyle,
+              { color: "#06b6d4" },
+            ]}
+          >
+            Search via QR
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -169,7 +185,7 @@ export default function Dashboard() {
         >
           Inventory Summary
         </Text>
-        <View style={tw`flex-row justify-between`}>
+        <View style={tw`flex-col justify-between`}>
           <View style={tw`items-center`}>
             <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
               Items
@@ -200,7 +216,7 @@ export default function Dashboard() {
             </Text>
             <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
               ${totalValue.toFixed(2)}
-            </Text>{" "}
+            </Text>
             {/* Displaying the total value with 2 decimal places */}
           </View>
         </View>
@@ -219,7 +235,9 @@ export default function Dashboard() {
           ]}
           onPress={() => router.push("/low-stock-items")}
         >
-          <Text style={[tw`font-bold mb-2`, dynamicStyles.blueTextStyle]}>Low Stock Items</Text>
+          <Text style={[tw`font-bold mb-2`, dynamicStyles.blueTextStyle]}>
+            Low Stock Items
+          </Text>
           <Text style={dynamicStyles.textStyle}>
             View all items low in stock
           </Text>
@@ -236,7 +254,9 @@ export default function Dashboard() {
           ]}
           onPress={() => router.push("/locations")}
         >
-          <Text style={[tw`font-bold mb-2`, dynamicStyles.blueTextStyle]}>Locations</Text>
+          <Text style={[tw`font-bold mb-2`, dynamicStyles.blueTextStyle]}>
+            Locations
+          </Text>
           <Text style={dynamicStyles.textStyle}>
             View and add items to Locations
           </Text>
@@ -255,7 +275,9 @@ export default function Dashboard() {
           ]}
           onPress={() => router.push("/transactions")}
         >
-          <Text style={[tw`font-bold mb-2`, dynamicStyles.blueTextStyle]}>Transactions</Text>
+          <Text style={[tw`font-bold mb-2`, dynamicStyles.blueTextStyle]}>
+            Transactions
+          </Text>
           <Text style={dynamicStyles.textStyle}>
             View item movements and quantity updates
           </Text>
@@ -272,7 +294,9 @@ export default function Dashboard() {
           ]}
           onPress={() => router.push("/item-analytics")}
         >
-          <Text style={[tw`font-bold mb-2`, dynamicStyles.blueTextStyle]}>Item Analytics</Text>
+          <Text style={[tw`font-bold mb-2`, dynamicStyles.blueTextStyle]}>
+            Item Analytics
+          </Text>
           <Text style={dynamicStyles.textStyle}>
             View trends in inventory and cost
           </Text>
@@ -289,7 +313,9 @@ export default function Dashboard() {
         ]}
         onPress={() => router.push("/qr-code")}
       >
-        <Text style={[tw`font-semibold`, { color: '#06b6d4' }]}>Scan QR code</Text>
+        <Text style={[tw`font-semibold`, { color: "#06b6d4" }]}>
+          Scan QR code
+        </Text>
       </TouchableOpacity>
 
       <View style={tw`flex-row justify-center mb-2`}>
@@ -303,7 +329,7 @@ export default function Dashboard() {
           ]}
           onPress={handleImport}
         >
-          <Text style={[tw`font-semibold`, { color: '#06b6d4' }]}>Import</Text>
+          <Text style={[tw`font-semibold`, { color: "#06b6d4" }]}>Import</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -316,14 +342,12 @@ export default function Dashboard() {
           ]}
           onPress={handleImport}
         >
-          <Text style={[tw`font-semibold`, { color: '#06b6d4' }]}>Export</Text>
+          <Text style={[tw`font-semibold`, { color: "#06b6d4" }]}>Export</Text>
         </TouchableOpacity>
       </View>
 
-      <View
-        style={dynamicStyles.recentItems}
-      >
-        <Text style={[tw`text-lg font-semibold mb-2`, { color: '#06b6d4' }]}>
+      <View style={dynamicStyles.recentItems}>
+        <Text style={[tw`text-lg font-semibold mb-2`, { color: "#06b6d4" }]}>
           Recent Activity
         </Text>
 
@@ -344,55 +368,101 @@ export default function Dashboard() {
         animationType="slide"
         onRequestClose={() => setModalVisible(false)}
       >
-       <View style={[dynamicStyles.modalContainer, { backgroundColor: darkMode ? 'rgba(8, 6, 6, 0.8)' : 'rgba(0, 0, 0, 0.5)' }]}>
-  <View style={[dynamicStyles.modalContent, { backgroundColor: darkMode ? "#374151" : "#ffffff" }]}>
-    <Text style={[tw`text-lg font-bold mb-4`, { color: darkMode ? "#ffffff" : "#000000" }]}>Manage Organization</Text>
+        <View
+          style={[
+            dynamicStyles.modalContainer,
+            {
+              backgroundColor: darkMode
+                ? "rgba(8, 6, 6, 0.8)"
+                : "rgba(0, 0, 0, 0.5)",
+            },
+          ]}
+        >
+          <View
+            style={[
+              dynamicStyles.modalContent,
+              { backgroundColor: darkMode ? "#374151" : "#ffffff" },
+            ]}
+          >
+            <Text
+              style={[
+                tw`text-lg font-bold mb-4`,
+                { color: darkMode ? "#ffffff" : "#000000" },
+              ]}
+            >
+              Manage Organization
+            </Text>
 
-    <TouchableOpacity
-      style={[
-        dynamicStyles.modalButton,
-        { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" } 
-      ]}
-      onPress={() => {
-        setModalVisible(false); // Hide the modal
-        router.push("/ManageWorkspace"); // Navigate to the other page
-      }}
-    >
-      <Text style={[tw`text-gray-700`, { color: darkMode ? "#d1d5db" : "#000000" }]}>
-        {organizationName}
-      </Text>
-    </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                dynamicStyles.modalButton,
+                { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" },
+              ]}
+              onPress={() => {
+                setModalVisible(false); // Hide the modal
+                router.push("/ManageWorkspace"); // Navigate to the other page
+              }}
+            >
+              <Text
+                style={[
+                  tw`text-gray-700`,
+                  { color: darkMode ? "#d1d5db" : "#000000" },
+                ]}
+              >
+                {organizationName}
+              </Text>
+            </TouchableOpacity>
 
-    <TouchableOpacity
-      style={[
-        dynamicStyles.modalButton,
-        { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" } 
-      ]}
-    >
-      <Text style={[tw`text-gray-700`, { color: darkMode ? "#d1d5db" : "#000000" }]}>Join New Organization</Text>
-    </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                dynamicStyles.modalButton,
+                { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" },
+              ]}
+            >
+              <Text
+                style={[
+                  tw`text-gray-700`,
+                  { color: darkMode ? "#d1d5db" : "#000000" },
+                ]}
+              >
+                Join New Organization
+              </Text>
+            </TouchableOpacity>
 
-    <TouchableOpacity
-      style={[
-        dynamicStyles.modalButton,
-        { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" } 
-      ]}
-    >
-      <Text style={[tw`text-gray-700`, { color: darkMode ? "#d1d5db" : "#000000" }]}>Add New Organization</Text>
-    </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                dynamicStyles.modalButton,
+                { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" },
+              ]}
+            >
+              <Text
+                style={[
+                  tw`text-gray-700`,
+                  { color: darkMode ? "#d1d5db" : "#000000" },
+                ]}
+              >
+                Add New Organization
+              </Text>
+            </TouchableOpacity>
 
-    <TouchableOpacity
-      style={[
-        dynamicStyles.modalButton,
-        { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" } 
-      ]}
-      onPress={() => setModalVisible(false)}
-    >
-      <Text style={[tw`text-gray-700`, { color: darkMode ? "#d1d5db" : "#000000" }]}>Close</Text>
-    </TouchableOpacity>
-  </View>
-</View>
-
+            <TouchableOpacity
+              style={[
+                dynamicStyles.modalButton,
+                { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" },
+              ]}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text
+                style={[
+                  tw`text-gray-700`,
+                  { color: darkMode ? "#d1d5db" : "#000000" },
+                ]}
+              >
+                Close
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </ScrollView>
   );

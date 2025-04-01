@@ -4,6 +4,7 @@ export interface Item {
   id: string;
   name: string;
   category: string;
+  tags: string[];
   minLevel: number;
   quantity: number;
   price: number;

@@ -1,11 +1,9 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import {
-  Alert,
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Switch,
   SafeAreaView,
 } from "react-native";
@@ -16,6 +14,9 @@ import { addItem } from "@itemsService";
 import { useTheme } from "@darkModeContext";
 import { getDynamicStyles } from "@styles";
 import { useNavigation } from "expo-router";
+import Tags from "react-native-tags";
+import { Item } from "@/types/types";
+import { setItem } from "expo-secure-store";
 
 export default function AddItem() {
   const { darkMode } = useTheme();
@@ -25,23 +26,40 @@ export default function AddItem() {
 
   const [hasVariants, setHasVariants] = useState<boolean>(false);
 
-  const [itemName, setItemName] = useState<string>("");
-  const [category, setCategory] = useState<string>("");
-  const [quantity, setQuantity] = useState<string>("");
-  const [minLevel, setMinLevel] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
-  const [totalValue, setTotalValue] = useState<string>("");
-
-  function clearFields() {
-    setItemName("");
-    setCategory("");
-    setQuantity("");
-    setMinLevel("");
-    setPrice("");
-    setTotalValue("");
-  }
+  const [itemFields, setItemFields] = useState<Omit<Item, "id">>({
+    name: "",
+    category: "",
+    tags: [],
+    minLevel: 0,
+    quantity: 0,
+    price: 0,
+    totalValue: 0,
+  });
 
   const navigation = useNavigation();
+
+  const clearFields = async () => {
+    setItemFields({
+      name: "",
+      category: "",
+      tags: [],
+      minLevel: 0,
+      quantity: 0,
+      price: 0,
+      totalValue: 0,
+    });
+  };
+
+  const handleSave = async () => {
+    if (itemFields && itemFields.name.trim())
+      try {
+        await addItem(itemFields);
+        clearFields();
+        router.push("/items");
+      } catch (error) {
+        console.error("Error", "Failed to save item");
+      }
+  };
 
   //Put a save button on the right side of the header
   //useLayoutEffect ensures the navigation bar updates before the UI is drawn
@@ -49,30 +67,25 @@ export default function AddItem() {
     navigation.setOptions({
       headerRight: () => (
         //Save Button
-        <TouchableOpacity
-          onPress={async () => {
-            const addSuccess = await addItem({
-              //Use dummy value for id, as firebase will generate the document id automatically
-              id: "dummy value",
-              name: itemName,
-              category,
-              quantity: Number(quantity),
-              minLevel: Number(minLevel),
-              price: Number(price),
-              totalValue: Number(totalValue),
-            });
-            if (addSuccess) {
-              clearFields();
-              router.push("/items");
-            }
-          }}
-        >
+        <TouchableOpacity style={tw`p-2`} onPress={handleSave}>
           {/* Save Icon */}
           <Ionicons name="save" size={28} color="#00bcd4" style={tw`mx-2`} />
         </TouchableOpacity>
       ),
     });
-  }, [navigation, itemName, category, quantity, minLevel, price, totalValue]);
+  }, [navigation, itemFields]);
+
+  const handleChange = (
+    field: keyof Omit<Item, "id">,
+    value: string | number | string[]
+  ) => {
+    if (!field) return;
+
+    setItemFields((prev) => ({
+      ...prev!,
+      [field]: value,
+    }));
+  };
 
   return (
     <SafeAreaView style={[dynamicStyles.containerStyle]}>
@@ -91,8 +104,8 @@ export default function AddItem() {
 
             <TextInput
               placeholder="Enter item name"
-              value={itemName}
-              onChangeText={setItemName}
+              value={itemFields.name}
+              onChangeText={(text) => handleChange("name", text)}
               style={[dynamicStyles.textInputStyle]}
             />
           </View>
@@ -100,8 +113,8 @@ export default function AddItem() {
             <Text style={[dynamicStyles.textStyle]}>Category</Text>
             <TextInput
               placeholder="-"
-              value={category}
-              onChangeText={setCategory}
+              value={itemFields.category}
+              onChangeText={(text) => handleChange("category", text)}
               style={[dynamicStyles.textInputStyle]}
             />
           </View>
@@ -112,8 +125,8 @@ export default function AddItem() {
             <Text style={[dynamicStyles.textStyle]}>Quantity</Text>
             <TextInput
               placeholder="-"
-              value={quantity}
-              onChangeText={setQuantity}
+              value={String(itemFields.quantity)}
+              onChangeText={(text) => handleChange("quantity", text)}
               style={[dynamicStyles.textInputStyle]}
               keyboardType="numeric"
             />
@@ -122,8 +135,8 @@ export default function AddItem() {
             <Text style={[dynamicStyles.textStyle]}>Min Level</Text>
             <TextInput
               placeholder="-"
-              value={minLevel}
-              onChangeText={setMinLevel}
+              value={String(itemFields.minLevel)}
+              onChangeText={(text) => handleChange("minLevel", text)}
               style={[dynamicStyles.textInputStyle]}
               keyboardType="numeric"
             />
@@ -135,8 +148,8 @@ export default function AddItem() {
             <Text style={[dynamicStyles.textStyle]}>Price</Text>
             <TextInput
               placeholder="-"
-              value={price}
-              onChangeText={setPrice}
+              value={String(itemFields.minLevel)}
+              onChangeText={(text) => handleChange("price", text)}
               style={[dynamicStyles.textInputStyle]}
               keyboardType="numeric"
             />
@@ -145,15 +158,45 @@ export default function AddItem() {
             <Text style={[dynamicStyles.textStyle]}>Total Value</Text>
             <TextInput
               placeholder="-"
-              value={totalValue}
-              onChangeText={setTotalValue}
+              value={String(itemFields.totalValue)}
+              onChangeText={(text) => handleChange("totalValue", text)}
               style={[dynamicStyles.textInputStyle]}
               keyboardType="numeric"
             />
           </View>
         </View>
-        {/*Customization Buttons*/}
 
+        {/* https://github.com/peterp/react-native-tags#readme */}
+        <Tags
+          key={itemFields.tags.toString()} //The tag list updates when the itemTags update
+          initialText=""
+          textInputProps={{
+            placeholder: "Enter tag",
+          }}
+          initialTags={itemFields.tags}
+          onChangeTags={(tags) => handleChange("tags", tags)}
+          onTagPress={(index, tagLabel, event, deleted) =>
+            console.log(
+              index,
+              tagLabel,
+              event,
+              deleted ? "deleted" : "not deleted"
+            )
+          }
+          containerStyle={tw`justify-center gap-1`}
+          inputStyle={{ backgroundColor: "white" }}
+          renderTag={({ tag, index, onPress, deleteTagOnPress, readonly }) => (
+            <TouchableOpacity
+              style={tw`bg-red-500`}
+              key={`${tag}-${index}`}
+              onPress={onPress}
+            >
+              <Text>{tag}</Text>
+            </TouchableOpacity>
+          )}
+        />
+
+        {/*Customization Buttons*/}
         <TouchableOpacity style={dynamicStyles.blueButtonStyle}>
           <Text style={dynamicStyles.blueTextStyle}>Create Custom Label</Text>
         </TouchableOpacity>

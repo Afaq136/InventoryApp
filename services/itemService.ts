@@ -148,12 +148,8 @@ export const editItem = async (oldItem: Item, newItem: Item): Promise<boolean> =
 }
 
 // Add a new item to Firestore
-export const addItem = async (newItem: Item): Promise<boolean> => {
+export const addItem = async (itemFields: Omit<Item, 'id'>): Promise<boolean> => {
   try {
-
-    //Remove the id from the newItem object
-    const { id, ...itemFields } = newItem;
-
     // Add the item and get the document reference
     const docRef = await addDoc(collection(db, "items"), itemFields);
     const docID = docRef.id;
@@ -174,7 +170,7 @@ export const addItem = async (newItem: Item): Promise<boolean> => {
         console.log("Creating snapshot at:", `items/${docID}/snapshots/${timestamp.toMillis()}`);
         await setDoc(snapshotRef, historyEntry);
 
-    Alert.alert("Success", `${newItem.name} added successfully!`);
+    Alert.alert("Success", `${itemFields.name} added successfully!`);
     return true;
   } catch (error) {
     console.error("Error adding item:", error);
