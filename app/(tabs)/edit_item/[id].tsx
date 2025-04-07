@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import ItemAnalytics from "@/app/item-analytics";
 import { Item } from "@/types/types";
 import Tags from "react-native-tags";
+import { Alert } from "react-native";
 
 export default function EditItem() {
   const { darkMode } = useTheme();
@@ -52,6 +53,19 @@ export default function EditItem() {
 
   const handleSave = async () => {
     if (!item || !originalItem) return;
+
+    const nameRegex = /^[A-Za-z ]+$/;
+    const categoryRegex = /^[A-Za-z ]+$/;
+    
+    if (!nameRegex.test(item.name ?? "")) {
+      Alert.alert("Invalid Item Name", "Item name should contain only letters and spaces.");
+      return;
+    }
+    
+    if (!categoryRegex.test(item.category ?? "")) {
+      Alert.alert("Invalid Category", "Category should contain only letters and spaces.");
+      return;
+    }
 
     const noChanges =
       (item.name ?? "") === (originalItem.name ?? "") &&

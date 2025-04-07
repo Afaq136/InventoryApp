@@ -15,6 +15,46 @@ export default function UserProfile() {
   const router = useRouter();
   const { darkMode } = useTheme(); 
 
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValidPassword = (password: string) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const isValidName = (name: string) => {
+    const nameRegex = /^[A-Za-z]+$/;
+    return nameRegex.test(name);
+  };
+
+  const handleSaveChanges = () => {
+    if (!isValidName(firstName)) {
+      Alert.alert("Invalid Name", "First name should only contain letters.");
+      return;
+    }
+
+    if (!isValidName(lastName)) {
+      Alert.alert("Invalid Name", "Last name should only contain letters.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      Alert.alert("Invalid Password", "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one special character.");
+      return;
+    }
+
+  
+    Alert.alert("Profile Updated", "Your changes have been saved successfully.");
+  };
+
   const handleDeleteAccount = () => {
     Alert.alert(
       "Delete Account",
@@ -64,7 +104,7 @@ export default function UserProfile() {
         />
       </View>
 
-      <TouchableOpacity onPress={() => router.push("/dashboard")} style={[tw`py-3 rounded-lg mb-5`, darkMode ? tw`bg-blue-600` : tw`bg-blue-500`]}>
+      <TouchableOpacity onPress={handleSaveChanges} style={[tw`py-3 rounded-lg mb-5`, darkMode ? tw`bg-blue-600` : tw`bg-blue-500`]}>
         <Text style={tw`text-white text-center`}>Save Changes</Text>
       </TouchableOpacity>
 

@@ -60,6 +60,13 @@ export default function AddItem() {
       Alert.alert("Error", "Item name is required.");
       return;
     }
+    
+    const nameRegex = /^[A-Za-z\s]+$/;
+    if (!nameRegex.test(name.trim())) {
+      Alert.alert("Error", "Item name can only contain letters and spaces.");
+      return;
+    }
+    
 
     const qrValue = `item:${name}|category:${category}`; // Generate QR code value
 
