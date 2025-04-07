@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Switch,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import tw from "twrnc";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,12 +17,12 @@ import { getDynamicStyles } from "@styles";
 import { useNavigation } from "expo-router";
 import Tags from "react-native-tags";
 import { Item } from "@/types/types";
-import { setItem } from "expo-secure-store";
+import QRCodeGenerator from "../../components/qrCodeGenerator"; // Correct path to the QRCodeGenerator component
 
 export default function AddItem() {
   const { darkMode } = useTheme();
 
-  //These styles change dynamically based off of dark mode
+  // These styles change dynamically based on dark mode
   const dynamicStyles = getDynamicStyles(darkMode);
 
   const [hasVariants, setHasVariants] = useState<boolean>(false);
@@ -34,6 +35,7 @@ export default function AddItem() {
     quantity: 0,
     price: 0,
     totalValue: 0,
+    qrValue: "", // Initialize qrValue
   });
 
   const navigation = useNavigation();
@@ -47,28 +49,50 @@ export default function AddItem() {
       quantity: 0,
       price: 0,
       totalValue: 0,
+      qrValue: "", // Reset qrValue
     });
   };
 
   const handleSave = async () => {
-    if (itemFields && itemFields.name.trim())
-      try {
-        await addItem(itemFields);
+    const { name, category, quantity, minLevel, price, totalValue } = itemFields;
+
+    if (!name.trim()) {
+      Alert.alert("Error", "Item name is required.");
+      return;
+    }
+
+    const qrValue = `item:${name}|category:${category}`; // Generate QR code value
+
+    try {
+      const addSuccess = await addItem({
+        name,
+        category,
+        quantity,
+        minLevel,
+        price,
+        totalValue,
+        tags: itemFields.tags, // Correctly include tags
+        qrValue, // Add QR code value to the item object
+      });
+
+      if (addSuccess) {
         clearFields();
+        Alert.alert("Success", "Item added successfully!");
         router.push("/items");
-      } catch (error) {
-        console.error("Error", "Failed to save item");
+      } else {
+        Alert.alert("Error", "Failed to add item.");
       }
+    } catch (error) {
+      console.error("Error", error);
+      Alert.alert("Error", "An unexpected error occurred.");
+    }
   };
 
-  //Put a save button on the right side of the header
-  //useLayoutEffect ensures the navigation bar updates before the UI is drawn
+  // Put a save button on the right side of the header
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        //Save Button
         <TouchableOpacity style={tw`p-2`} onPress={handleSave}>
-          {/* Save Icon */}
           <Ionicons name="save" size={28} color="#00bcd4" style={tw`mx-2`} />
         </TouchableOpacity>
       ),
@@ -79,10 +103,8 @@ export default function AddItem() {
     field: keyof Omit<Item, "id">,
     value: string | number | string[]
   ) => {
-    if (!field) return;
-
     setItemFields((prev) => ({
-      ...prev!,
+      ...prev,
       [field]: value,
     }));
   };
@@ -90,18 +112,18 @@ export default function AddItem() {
   return (
     <SafeAreaView style={[dynamicStyles.containerStyle]}>
       <View style={tw`gap-2`}>
-        {/*Photo Container*/}
+        {/* Photo Container */}
         <View style={[dynamicStyles.photoContainer]}>
           <Ionicons name="camera-outline" size={64} color="#00bcd4" />
           <Text style={dynamicStyles.textStyle}>Add photos</Text>
         </View>
-        {/*Row 1 of text inputs*/}
+
+        {/* Row 1 of text inputs */}
         <View style={dynamicStyles.row}>
           <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
             <Text style={[tw`font-bold`, dynamicStyles.textStyle]}>
               Item Name
             </Text>
-
             <TextInput
               placeholder="Enter item name"
               value={itemFields.name}
@@ -119,14 +141,15 @@ export default function AddItem() {
             />
           </View>
         </View>
-        {/*Row 2 of text inputs*/}
+
+        {/* Row 2 of text inputs */}
         <View style={dynamicStyles.row}>
           <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
             <Text style={[dynamicStyles.textStyle]}>Quantity</Text>
             <TextInput
               placeholder="-"
               value={String(itemFields.quantity)}
-              onChangeText={(text) => handleChange("quantity", text)}
+              onChangeText={(text) => handleChange("quantity", Number(text))}
               style={[dynamicStyles.textInputStyle]}
               keyboardType="numeric"
             />
@@ -136,20 +159,21 @@ export default function AddItem() {
             <TextInput
               placeholder="-"
               value={String(itemFields.minLevel)}
-              onChangeText={(text) => handleChange("minLevel", text)}
+              onChangeText={(text) => handleChange("minLevel", Number(text))}
               style={[dynamicStyles.textInputStyle]}
               keyboardType="numeric"
             />
           </View>
         </View>
-        {/*Row 3 of text inputs*/}
+
+        {/* Row 3 of text inputs */}
         <View style={dynamicStyles.row}>
           <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
             <Text style={[dynamicStyles.textStyle]}>Price</Text>
             <TextInput
               placeholder="-"
-              value={String(itemFields.minLevel)}
-              onChangeText={(text) => handleChange("price", text)}
+              value={String(itemFields.price)}
+              onChangeText={(text) => handleChange("price", Number(text))}
               style={[dynamicStyles.textInputStyle]}
               keyboardType="numeric"
             />
@@ -159,33 +183,25 @@ export default function AddItem() {
             <TextInput
               placeholder="-"
               value={String(itemFields.totalValue)}
-              onChangeText={(text) => handleChange("totalValue", text)}
+              onChangeText={(text) => handleChange("totalValue", Number(text))}
               style={[dynamicStyles.textInputStyle]}
               keyboardType="numeric"
             />
           </View>
         </View>
 
-        {/* https://github.com/peterp/react-native-tags#readme */}
+        {/* Tags */}
         <Tags
-          key={itemFields.tags.toString()} //The tag list updates when the itemTags update
+          key={itemFields.tags.toString()}
           initialText=""
           textInputProps={{
             placeholder: "Enter tag",
           }}
           initialTags={itemFields.tags}
           onChangeTags={(tags) => handleChange("tags", tags)}
-          onTagPress={(index, tagLabel, event, deleted) =>
-            console.log(
-              index,
-              tagLabel,
-              event,
-              deleted ? "deleted" : "not deleted"
-            )
-          }
           containerStyle={tw`justify-center gap-1`}
           inputStyle={{ backgroundColor: "white" }}
-          renderTag={({ tag, index, onPress, deleteTagOnPress, readonly }) => (
+          renderTag={({ tag, index, onPress }) => (
             <TouchableOpacity
               style={tw`bg-red-500`}
               key={`${tag}-${index}`}
@@ -196,7 +212,7 @@ export default function AddItem() {
           )}
         />
 
-        {/*Customization Buttons*/}
+        {/* Customization Buttons */}
         <TouchableOpacity style={dynamicStyles.blueButtonStyle}>
           <Text style={dynamicStyles.blueTextStyle}>Create Custom Label</Text>
         </TouchableOpacity>
@@ -204,7 +220,7 @@ export default function AddItem() {
           <Text style={dynamicStyles.blueTextStyle}>Link QR / Barcode</Text>
         </TouchableOpacity>
 
-        {/*Row for switches*/}
+        {/* Row for switches */}
         <View style={dynamicStyles.row}>
           <Text style={darkMode ? { color: "white" } : {}}>
             This item has variants
@@ -212,6 +228,13 @@ export default function AddItem() {
           <Switch value={hasVariants} onValueChange={setHasVariants} />
         </View>
       </View>
+
+      {/* QR Code Display */}
+      {itemFields.name && (
+        <QRCodeGenerator
+          value={`item:${itemFields.name}|category:${itemFields.category}`}
+        />
+      )}
     </SafeAreaView>
   );
 }

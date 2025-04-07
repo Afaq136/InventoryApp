@@ -9,6 +9,7 @@ export interface Item {
   quantity: number;
   price: number;
   totalValue: number;
+  qrValue?: string;
 }
 
 export interface ItemHistoryEntry {

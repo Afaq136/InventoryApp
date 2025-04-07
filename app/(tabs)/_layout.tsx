@@ -158,6 +158,69 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="workspace/join-workspace"
+        options={{
+          href: null, //Don't include as a tab
+          headerTitle: "Join Organization",
+          headerLeft: () => (
+            //Back Button
+            <TouchableOpacity
+              style={tw`p-2`}
+              onPress={() => router.push("/menu")}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={28}
+                color="#00bcd4"
+                style={tw`mx-2`}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="workspace/new-workspace"
+        options={{
+          href: null, //Don't include as a tab
+          headerTitle: "Add New Organization",
+          headerLeft: () => (
+            //Back Button
+            <TouchableOpacity
+              style={tw`p-2`}
+              onPress={() => router.push("/menu")}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={28}
+                color="#00bcd4"
+                style={tw`mx-2`}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="workspace/ManageWorkspace"
+        options={{
+          href: null, //Don't include as a tab
+          headerTitle: "Manage Organization",
+          headerLeft: () => (
+            //Back Button
+            <TouchableOpacity
+              style={tw`p-2`}
+              onPress={() => router.push("/menu")}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={28}
+                color="#00bcd4"
+                style={tw`mx-2`}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Tabs>
   );
 }

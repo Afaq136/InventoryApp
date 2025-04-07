@@ -14,27 +14,34 @@ export default function Menu() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.profileCard}>
+      <TouchableOpacity
+        onPress={() => router.push("/profile")}
+        style={styles.profileCard}
+      >
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>FL</Text>
         </View>
-        <Link href="/profile" style={styles.link}>
-          User Profile
-        </Link>
+        <Text style={styles.cardText}>User Profile</Text>
       </TouchableOpacity>
 
       <Text style={styles.text}>MY WORKSPACES</Text>
       <TouchableOpacity
         style={styles.card}
-        onPress={() => router.push("../ManageWorkspace")}
+        onPress={() => router.push("workspace/ManageWorkspace")}
       >
         <Text style={styles.cardText}>Organization</Text>
         <Text style={styles.cardText}>1 Contributor</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.card}>
+      <TouchableOpacity
+        onPress={() => router.push("workspace/join-workspace")}
+        style={styles.card}
+      >
         <Text style={styles.cardText}>Join Organization</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.card}>
+      <TouchableOpacity
+        onPress={() => router.push("workspace/new-workspace")}
+        style={styles.card}
+      >
         <Text style={styles.cardText}>Add New Organization</Text>
       </TouchableOpacity>
 
@@ -48,7 +55,7 @@ export default function Menu() {
           value={notificationsEnabled}
           onValueChange={setNotificationsEnabled}
           trackColor={{ false: "#ccc", true: "#00bcd4" }}
-          thumbColor={notificationsEnabled ? "#00bcd4" : "#f4f3f4"}
+          thumbColor={notificationsEnabled ? "#ccc" : "#f4f3f4"}
         />
       </View>
       <View style={styles.card}>
@@ -61,7 +68,8 @@ export default function Menu() {
             value={darkMode}
             onValueChange={toggleDarkMode}
             trackColor={{ false: "#ccc", true: "#00bcd4" }}
-            thumbColor={darkMode ? "#00bcd4" : "#f4f3f4"}
+            thumbColor={darkMode ? "#ccc" : "#f4f3f4"}
+            style={{ marginLeft: 10 }} // Add spacing between the text and the Switch
           />
         </View>
       </View>

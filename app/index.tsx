@@ -1,10 +1,13 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, Image, TouchableOpacity, Animated } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useTheme } from "./context/DarkModeContext";
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
+
+import * as Location from 'expo-location';
+
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -14,6 +17,11 @@ export default function HomeScreen() {
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current; // Starts invisible
   const translateY = useRef(new Animated.Value(100)).current; // Starts below screen
+
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+
 
   useEffect(() => {
     // Animate logo and text upwards with fade-in
@@ -28,6 +36,22 @@ export default function HomeScreen() {
       duration: 800,
       useNativeDriver: true,
     }).start();
+
+    async function getCurrentLocation() {
+      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+      
+      
+    }
+ 
+    getCurrentLocation();
   }, []);
 
   return (

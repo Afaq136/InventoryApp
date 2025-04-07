@@ -16,6 +16,7 @@ import * as DocumentPicker from "expo-document-picker"; // Use expo-document-pic
 import { orderBy, limit, query } from "firebase/firestore";
 import { useTheme } from "@darkModeContext";
 import { getDynamicStyles } from "@styles";
+import { useOrganization } from "@clerk/clerk-expo";
 
 interface Item {
   id: string;
@@ -29,13 +30,30 @@ interface Item {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { organizationName = "Organization" } = useLocalSearchParams();
+
+  // https://clerk.com/docs/hooks/use-organization
+  const { isLoaded, organization } = useOrganization();
+
+  //Don't display anything until Clerk completes initialization
+  if (!isLoaded) {
+    return;
+  }
+
+  const [organizationName, setOrganizationName] = useState<string>("");
+
   const [totalQuantity, setTotalQuantity] = useState<number>(0);
   const [totalDocuments, setTotalDocuments] = useState<number>(0);
   const [totalCategories, setTotalCategories] = useState<number>(0);
   const [totalValue, setTotalValue] = useState<number>(0); // State to store the total value of items
   const [recentItems, setRecentItems] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+
+  //Update the displayed organization name based on the current active organization
+  useEffect(() => {
+    if (organization) {
+      setOrganizationName(organization.name);
+    }
+  }, [organization?.name]);
 
   const { darkMode } = useTheme();
 
@@ -129,9 +147,14 @@ export default function Dashboard() {
   return (
     <ScrollView style={dynamicStyles.containerStyle}>
       <View style={dynamicStyles.header}>
-        <Text style={[tw`text-xl font-bold`, dynamicStyles.textStyle]}>
-          {organizationName}
-        </Text>
+        {/* Display the organization name, otherwise display a message*/}
+        {organization ? (
+          <Text style={[tw`text-xl font-bold`, dynamicStyles.textStyle]}>
+            {organizationName}
+          </Text>
+        ) : (
+          <Text>You are not part of an organization</Text>
+        )}
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>▼</Text>
         </TouchableOpacity>

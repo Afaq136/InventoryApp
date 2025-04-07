@@ -61,22 +61,23 @@ export const getItem = async (itemID: string): Promise<Item | null> => {
 export const fetchItemsByFolder = async (): Promise<{ folders: string[]; itemsByFolder: ItemsByFolder }> => {
   try {
     const snapshot = await getDocs(collection(db, "items"));
-    
+
     // Map documents into an array of objects
     const fetchedItems: Item[] = snapshot.docs.map((doc) => {
-
       const data = doc.data();
 
       const currentItem = {
-        id: doc.id, //Use id of the document as the id of the item
-        ...data
-      } as Item
+        id: doc.id, // Use id of the document as the id of the item
+        ...data,
+      } as Item;
 
       return currentItem;
-  });
+    });
 
     // Extract folder names from items (default to "Uncategorized" if category is missing)
-    const folders = Array.from(new Set(fetchedItems.map((item) => item.category?.trim() || "Uncategorized")));
+    const folders = Array.from(
+      new Set(fetchedItems.map((item) => item.category?.trim() || "Uncategorized"))
+    );
 
     // Group items by category
     const itemsByFolder = fetchedItems.reduce<ItemsByFolder>((acc, item) => {
@@ -98,34 +99,35 @@ export const fetchItemsByFolder = async (): Promise<{ folders: string[]; itemsBy
 };
 
 export const editItem = async (oldItem: Item, newItem: Item): Promise<boolean> => {
+  if (oldItem.id !== newItem.id) {
+    Alert.alert("Invalid Input", "Item IDs must match.");
+    return false;
+  }
+  const docID = newItem.id;
+  const changes = getChangedFields(oldItem, newItem);
 
-    if (oldItem.id !== newItem.id) {
-      Alert.alert("Invalid Input", "Item ids must match.");
-      return false;
-    }
-    const docID = newItem.id;
-    const changes = getChangedFields(oldItem, newItem);
-
-    if (Object.keys(changes).length === 0) {
-      Alert.alert("No Changes", "Nothing to update.");
-      return false;
-    }
+  if (Object.keys(changes).length === 0) {
+    Alert.alert("No Changes", "Nothing to update.");
+    return false;
+  }
 
   try {
-
     // Get the reference to the document using its ID
     const itemRef = doc(db, "items", docID);
 
-    //Remove the id from the newItem object
-    const {id, ...itemFields} = newItem;
+    // Remove the id from the newItem object
+    const { id, ...itemFields } = newItem;
 
     await updateDoc(itemRef, itemFields);
-    
-    //Create a timestamp for the snapshot
+
+    // Create a timestamp for the snapshot
     const timestamp = Timestamp.now();
 
-    //Create the snapshot document in the subcollection
-    const snapshotRef = doc(collection(db, `items/${docID}/snapshots`), timestamp.toMillis().toString());
+    // Create the snapshot document in the subcollection
+    const snapshotRef = doc(
+      collection(db, `items/${docID}/snapshots`),
+      timestamp.toMillis().toString()
+    );
 
     const changeDescription = generateChangeDescription(oldItem, newItem);
 
@@ -133,48 +135,27 @@ export const editItem = async (oldItem: Item, newItem: Item): Promise<boolean> =
       itemId: docID,
       timestamp,
       changes,
-      description: changeDescription
+      description: changeDescription,
     };
 
     await setDoc(snapshotRef, historyEntry);
 
     return true;
-      } catch (error) {
-        // Handle any errors that occur during the update
-        Alert.alert("Error", "Failed to update item. Please try again.");
-        console.error("Error updating item:", error);
-        return false;
-      }
-}
+  } catch (error) {
+    // Handle any errors that occur during the update
+    Alert.alert("Error", "Failed to update item. Please try again.");
+    console.error("Error updating item:", error);
+    return false;
+  }
+};
 
 // Add a new item to Firestore
-export const addItem = async (itemFields: Omit<Item, 'id'>): Promise<boolean> => {
+export const addItem = async (item: Omit<Item, "id">): Promise<boolean> => {
   try {
-    // Add the item and get the document reference
-    const docRef = await addDoc(collection(db, "items"), itemFields);
-    const docID = docRef.id;
-
-        //Create a timestamp for the snapshot
-        const timestamp = Timestamp.now();
-
-        //Create the snapshot document in the subcollection
-        const snapshotRef = doc(collection(db, `items/${docID}/snapshots`), timestamp.toMillis().toString());
-
-        const historyEntry: ItemHistoryEntry = {
-          itemId: docID,
-          timestamp,
-          changes: itemFields,
-          description: `Created item: ${itemFields.name}`,
-        };
-
-        console.log("Creating snapshot at:", `items/${docID}/snapshots/${timestamp.toMillis()}`);
-        await setDoc(snapshotRef, historyEntry);
-
-    Alert.alert("Success", `${itemFields.name} added successfully!`);
+    await addDoc(collection(db, "items"), item);
     return true;
   } catch (error) {
     console.error("Error adding item:", error);
-    Alert.alert("Error", "Failed to add item. Please try again.");
     return false;
   }
 };
