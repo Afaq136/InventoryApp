@@ -23,6 +23,7 @@ import { useSignUp } from "@clerk/clerk-expo";
 export default function SignUp() {
   const { darkMode } = useTheme();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [fullName, setFullName] = useState("");
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +38,30 @@ export default function SignUp() {
 
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
+
+    const emailRegex = /^[^@]+@[\w.-]+$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+    const fullNameRegex = /^[A-Za-z]+ [A-Za-z]+$/;
+
     if (!isLoaded) return;
+
+    if (!fullNameRegex.test(fullName)) {
+      Alert.alert("Invalid Name", "Please enter your first and last name using only letters.");
+      return;
+    }
+    
+    if (!emailRegex.test(emailAddress)) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return;
+    }
+  
+    if (!passwordRegex.test(password)) {
+      Alert.alert(
+        "Weak Password",
+        "Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, and one special character."
+      );
+      return;
+    }
 
     if (password !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match");
@@ -159,6 +183,8 @@ export default function SignUp() {
           <View style={tw`w-full px-12 mb-4`}>
             <TextInput
               placeholder="Full name"
+              value={fullName}
+              onChangeText={setFullName}
               style={[
                 tw`border border-gray-300 rounded-lg p-2 mb-2`,
                 darkMode && {

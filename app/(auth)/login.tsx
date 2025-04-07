@@ -113,6 +113,24 @@ export default function Login() {
   const onSignInPress = async () => {
     if (!isLoaded) return;
 
+    const emailRegex = /^[^@]+@[\w.-]+$/;
+
+    //password have to be 8 chracters, 1 uppercase, 1 lowecase, and 1 special chracter 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+
+
+  if (!emailRegex.test(emailAddress)) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  if (!passwordRegex.test(password)) {
+    alert(
+      "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, and a special character."
+    );
+    return;
+  }
+  
     // Start the sign-in process using the email and password provided
     try {
       const signInAttempt = await signIn.create({
