@@ -13,6 +13,7 @@ import tw from "twrnc";
 import { db } from "@firebaseConfig";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 import * as DocumentPicker from "expo-document-picker"; // Use expo-document-picker
+import * as Papa from 'papaparse';
 import { orderBy, limit, query } from "firebase/firestore";
 import { useTheme } from "@darkModeContext";
 import { getDynamicStyles } from "@styles";
@@ -20,6 +21,10 @@ import { useOrganization } from "@clerk/clerk-expo";
 import { Item, ItemsByFolder } from "@/types/types"; // Import the Item type
 import { subscribeToItems } from "@itemsService";
 import { useItemStats } from "@/app/context/ItemStatsContext";
+import { addItem } from "@itemsService"; // Assuming addItem is your method to add a new item to the database
+//import { Item } from "@/types/types";
+import * as FileSystem from 'expo-file-system';
+
 
 export default function Dashboard() {
   const { totalCategories, totalItems, totalQuantity, totalValue } =
@@ -83,21 +88,66 @@ export default function Dashboard() {
     fetchRecentItems();
   }, []);
 
+  const readFile = async (uri: string) => {
+    try {
+      const content = await FileSystem.readAsStringAsync(uri);
+      return content;
+    } catch (error) {
+      console.error("Error reading file:", error);
+      return '';
+    }
+  };
+
   const handleImport = async () => {
     try {
       const res = await DocumentPicker.getDocumentAsync({
         type: "text/csv", // Allow CSV files
       });
-
+  
       if (res.canceled) {
         console.log("User canceled the picker");
         return;
       }
-
-      const file = res.assets[0]; // Access selected file
+  
+      const file = res.assets[0]; // Access the selected file
       console.log("Selected file:", file);
-
-      // Here you can process the CSV file
+  
+      // Fetch the file content
+      const fileUri = file.uri;
+      const fileContent = await readFile(fileUri); // We need a method to read the file
+  
+      // Parse the CSV content
+      Papa.parse(fileContent, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (result) => {
+          const items = result.data; // This will be an array of objects
+  
+          // Now, loop through each item and add it to the Firestore database
+          items.forEach(async (item: any) => {
+            const newItem = {
+              name: item.name,
+              category: item.category,
+              quantity: parseInt(item.quantity), // Assuming quantity is an integer
+              isLow: item.isLow === 'true', // Convert string to boolean
+              totalValue: parseFloat(item.totalValue), // Convert total value to a float
+              price: parseFloat(item.price), // Convert price to a float
+              tags: item.tags.split(','), // Assuming tags are comma-separated
+              minLevel: parseInt(item.minLevel), // Minimum level should be an integer
+              location: item.location,
+              createdAt: new Date(),
+            };
+  
+            // Assuming addItem function inserts an item into the Firestore
+            await addItem(newItem); // This is where you insert it into Firestore
+          });
+  
+          console.log("Items have been successfully imported!");
+        },
+        error: (error) => {
+          console.error("Error parsing CSV:", error.message);
+        },
+      });
     } catch (err) {
       console.error("Error picking file:", err);
     }
