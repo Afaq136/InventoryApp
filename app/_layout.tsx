@@ -6,6 +6,7 @@ import { ThemeProvider } from "@darkModeContext";
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 import { tokenCache } from "@/cache";
 import SplashScreenComponent from "./SplashScreen"; // Import animated splash screen
+import { ItemStatsProvider } from "@/app/context/ItemStatsContext";
 
 // Retrieve the publishable key for Clerk from environmental variables
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
@@ -22,11 +23,15 @@ export default function Layout() {
       <ClerkLoaded>
         <AuthProvider>
           <ThemeProvider>
-            {isSplashVisible ? (
-              <SplashScreenComponent onAnimationFinish={() => setSplashVisible(false)} />
-            ) : (
-              <AuthGate />
-            )}
+            <ItemStatsProvider>
+              {isSplashVisible ? (
+                <SplashScreenComponent
+                  onAnimationFinish={() => setSplashVisible(false)}
+                />
+              ) : (
+                <AuthGate />
+              )}
+            </ItemStatsProvider>
           </ThemeProvider>
         </AuthProvider>
       </ClerkLoaded>

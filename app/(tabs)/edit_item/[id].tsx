@@ -20,7 +20,10 @@ export default function EditItem() {
   // These styles change dynamically based on dark mode
   const dynamicStyles = getDynamicStyles(darkMode);
 
+  // The fields of the item after changes
   const [item, setItem] = useState<Item | null>();
+
+  // The fields of the item before any saved changes
   const [originalItem, setOriginalItem] = useState<Item | null>();
 
   const [loading, setLoading] = useState(true);
@@ -73,7 +76,8 @@ export default function EditItem() {
       (item.quantity ?? 0) === (originalItem.quantity ?? 0) &&
       (item.minLevel ?? 0) === (originalItem.minLevel ?? 0) &&
       (item.price ?? 0) === (originalItem.price ?? 0) &&
-      (item.tags ?? []).join(",") === (originalItem.tags ?? []).join(",");
+      (item.tags ?? []).join(",") === (originalItem.tags ?? []).join(",") &&
+      (item.location ?? "") === (originalItem.location ?? "");
 
     if (noChanges) {
       console.log("No Changes", "No changes were made to the item.");
@@ -141,6 +145,7 @@ export default function EditItem() {
                 style={[dynamicStyles.textInputStyle]}
               />
             </View>
+            {/* TODO, make into Dropdown list */}
             {/* Category */}
             <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
               <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
@@ -209,6 +214,19 @@ export default function EditItem() {
                 onChangeText={(text) => handleChange("totalValue", text)}
                 style={[dynamicStyles.textInputStyle]}
                 keyboardType="numeric"
+              />
+            </View>
+          </View>
+          {/* TODO, make into Dropdown list */}
+          {/* Location */}
+          <View style={dynamicStyles.row}>
+            <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
+              <Text style={[dynamicStyles.textStyle]}>Location</Text>
+              <TextInput
+                placeholder="-"
+                value={item.location}
+                onChangeText={(text) => handleChange("location", text)}
+                style={[dynamicStyles.textInputStyle]}
               />
             </View>
           </View>

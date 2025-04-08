@@ -17,18 +17,14 @@ import { orderBy, limit, query } from "firebase/firestore";
 import { useTheme } from "@darkModeContext";
 import { getDynamicStyles } from "@styles";
 import { useOrganization } from "@clerk/clerk-expo";
-
-interface Item {
-  id: string;
-  name: string;
-  quantity: number;
-  isLow: boolean;
-  category: string;
-  totalValue: number;
-  price: number;
-}
+import { Item, ItemsByFolder } from "@/types/types"; // Import the Item type
+import { subscribeToItems } from "@itemsService";
+import { useItemStats } from "@/app/context/ItemStatsContext";
 
 export default function Dashboard() {
+  const { totalCategories, totalItems, totalQuantity, totalValue } =
+    useItemStats();
+
   const router = useRouter();
 
   // https://clerk.com/docs/hooks/use-organization
@@ -41,10 +37,6 @@ export default function Dashboard() {
 
   const [organizationName, setOrganizationName] = useState<string>("");
 
-  const [totalQuantity, setTotalQuantity] = useState<number>(0);
-  const [totalDocuments, setTotalDocuments] = useState<number>(0);
-  const [totalCategories, setTotalCategories] = useState<number>(0);
-  const [totalValue, setTotalValue] = useState<number>(0); // State to store the total value of items
   const [recentItems, setRecentItems] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
 
@@ -61,38 +53,6 @@ export default function Dashboard() {
   const dynamicStyles = getDynamicStyles(darkMode);
 
   useEffect(() => {
-    const fetchItemData = async () => {
-      try {
-        const itemsCollection = collection(db, "items");
-        const snapshot = await getDocs(itemsCollection);
-
-        let quantity = 0;
-        let value = 0;
-        const categorySet = new Set<string>(); // Create a Set to store unique categories
-
-        snapshot.forEach((doc) => {
-          const itemData = doc.data() as Item;
-          quantity += itemData.quantity || 0;
-
-          //The value is the quantity of an item multiplied by the price
-          if (itemData.quantity && itemData.price) {
-            value += itemData.quantity * itemData.price;
-          }
-
-          if (itemData.category) {
-            categorySet.add(itemData.category);
-          }
-        });
-
-        setTotalQuantity(quantity);
-        setTotalDocuments(snapshot.size);
-        setTotalCategories(categorySet.size);
-        setTotalValue(value);
-      } catch (error) {
-        console.error("Error fetching items:", error);
-      }
-    };
-
     const fetchRecentItems = async () => {
       try {
         const itemsCollection = collection(db, "items");
@@ -120,7 +80,6 @@ export default function Dashboard() {
       }
     };
 
-    fetchItemData();
     fetchRecentItems();
   }, []);
 
@@ -214,7 +173,7 @@ export default function Dashboard() {
               Items
             </Text>
             <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
-              {totalDocuments}
+              {totalItems}
             </Text>
           </View>
           <View style={tw`items-center`}>

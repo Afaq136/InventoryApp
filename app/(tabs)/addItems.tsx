@@ -36,6 +36,7 @@ export default function AddItem() {
     price: 0,
     totalValue: 0,
     qrValue: "", // Initialize qrValue
+    location: "",
   });
 
   const navigation = useNavigation();
@@ -50,11 +51,13 @@ export default function AddItem() {
       price: 0,
       totalValue: 0,
       qrValue: "", // Reset qrValue
+      location: "",
     });
   };
 
   const handleSave = async () => {
-    const { name, category, quantity, minLevel, price, totalValue } = itemFields;
+    const { name, category, quantity, minLevel, price, totalValue, location } =
+      itemFields;
 
     if (!name.trim()) {
       Alert.alert("Error", "Item name is required.");
@@ -68,6 +71,7 @@ export default function AddItem() {
     }
     
 
+    // TODO: generate the QR value based on all the fields, or alternativly just on the item ID
     const qrValue = `item:${name}|category:${category}`; // Generate QR code value
 
     try {
@@ -80,6 +84,7 @@ export default function AddItem() {
         totalValue,
         tags: itemFields.tags, // Correctly include tags
         qrValue, // Add QR code value to the item object
+        location,
       });
 
       if (addSuccess) {
@@ -138,6 +143,7 @@ export default function AddItem() {
               style={[dynamicStyles.textInputStyle]}
             />
           </View>
+          {/* TODO, Category into Dropdown list */}
           <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
             <Text style={[dynamicStyles.textStyle]}>Category</Text>
             <TextInput
@@ -197,6 +203,20 @@ export default function AddItem() {
           </View>
         </View>
 
+        {/* TODO, make into Dropdown list */}
+        {/* Location */}
+        <View style={dynamicStyles.row}>
+          <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
+            <Text style={[dynamicStyles.textStyle]}>Location</Text>
+            <TextInput
+              placeholder="-"
+              value={itemFields.location}
+              onChangeText={(text) => handleChange("location", text)}
+              style={[dynamicStyles.textInputStyle]}
+            />
+          </View>
+        </View>
+
         {/* Tags */}
         <Tags
           key={itemFields.tags.toString()}
@@ -218,22 +238,6 @@ export default function AddItem() {
             </TouchableOpacity>
           )}
         />
-
-        {/* Customization Buttons */}
-        <TouchableOpacity style={dynamicStyles.blueButtonStyle}>
-          <Text style={dynamicStyles.blueTextStyle}>Create Custom Label</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={dynamicStyles.blueButtonStyle}>
-          <Text style={dynamicStyles.blueTextStyle}>Link QR / Barcode</Text>
-        </TouchableOpacity>
-
-        {/* Row for switches */}
-        <View style={dynamicStyles.row}>
-          <Text style={darkMode ? { color: "white" } : {}}>
-            This item has variants
-          </Text>
-          <Switch value={hasVariants} onValueChange={setHasVariants} />
-        </View>
       </View>
 
       {/* QR Code Display */}
