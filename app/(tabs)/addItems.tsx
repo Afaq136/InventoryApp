@@ -18,6 +18,8 @@ import { useNavigation } from "expo-router";
 import Tags from "react-native-tags";
 import { Item } from "@/types/types";
 import QRCodeGenerator from "../../components/qrCodeGenerator"; // Correct path to the QRCodeGenerator component
+import * as ImagePicker from 'expo-image-picker'; // New import for camera and image picker
+import { Image } from "react-native";
 
 export default function AddItem() {
   const { darkMode } = useTheme();
@@ -39,7 +41,20 @@ export default function AddItem() {
     location: "",
   });
 
+  const [photoUri, setPhotoUri] = useState<string | null>(null); //camera state
   const navigation = useNavigation();
+
+  useEffect(() => {
+    // Camera Access
+    const requestCameraPermission = async () => {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission required", "Camera permission is required.");
+      }
+    };
+
+    requestCameraPermission();
+  }, []);
 
   const clearFields = async () => {
     setItemFields({
@@ -53,6 +68,7 @@ export default function AddItem() {
       qrValue: "", // Reset qrValue
       location: "",
     });
+    setPhotoUri(null); // Clear the photo URI when clearing fields
   };
 
   const handleSave = async () => {
@@ -132,14 +148,34 @@ export default function AddItem() {
     }));
   };
 
+  const handleAddPhoto = async () => {
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setPhotoUri(result.uri); // Save the photo URI
+    }
+  };
+
   return (
     <SafeAreaView style={[dynamicStyles.containerStyle]}>
       <View style={tw`gap-2`}>
         {/* Photo Container */}
-        <View style={[dynamicStyles.photoContainer]}>
+        <TouchableOpacity onPress={handleAddPhoto} style={[dynamicStyles.photoContainer]}>
           <Ionicons name="camera-outline" size={64} color="#00bcd4" />
           <Text style={dynamicStyles.textStyle}>Add photos</Text>
-        </View>
+        </TouchableOpacity>
+
+        {/* Display selected photo if it exists */}
+        {photoUri && (
+          <View style={tw`mt-4`}>
+            <Text style={dynamicStyles.textStyle}>Selected Photo:</Text>
+            <Image source={{ uri: photoUri }} style={{ width: 200, height: 200, borderRadius: 10 }} />
+          </View>
+        )}
 
         {/* Row 1 of text inputs */}
         <View style={dynamicStyles.row}>

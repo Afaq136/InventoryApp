@@ -234,7 +234,7 @@ export default function Dashboard() {
               backgroundColor: darkMode ? "#374151" : "#ffffff",
             },
           ]}
-          onPress={() => router.push("/locations")}
+          onPress={() => router.push("/search")}
         >
           <Text style={[tw`font-bold mb-2`, dynamicStyles.blueTextStyle]}>
             Locations
