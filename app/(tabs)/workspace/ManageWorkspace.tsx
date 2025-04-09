@@ -23,7 +23,13 @@ export default function ManageWorkspace() {
   const router = useRouter();
 
   const [workspaceName, setWorkspaceName] = useState("");
-  const [contributors, setContributors] = useState(["User1", "User2"]);
+  const [contributors, setContributors] = useState([
+    "John",
+    "Afaq",
+    "Yaroslav",
+    "Marissa",
+    "Jinan",
+  ]);
   const [newContributor, setNewContributor] = useState("");
 
   const { isLoaded, organization } = useOrganization();

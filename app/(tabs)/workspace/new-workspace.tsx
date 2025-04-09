@@ -68,6 +68,12 @@ export default function NewWorkspace() {
       });
 
       console.log(res);
+
+      // https://clerk.com/docs/hooks/use-organization-list#paginated-resources
+      //Update the user memberships list
+      userMemberships.revalidate();
+
+      //Reset the organization name field
       setOrganizationName("");
     } catch (err) {
       console.error(JSON.stringify(err, null, 2));
@@ -130,11 +136,11 @@ export default function NewWorkspace() {
               onPress={handleSubmit}
               style={tw`bg-blue-500 text-white py-2 px-6 rounded-lg mb-4`}
             >
-              <Text style={tw`text-white text-sm text-center`}>Next</Text>
+              <Text style={tw`text-white text-sm text-center`}>Create</Text>
             </TouchableOpacity>
           </View>
           <TextInput
-            placeholder="Business Name"
+            placeholder="Organization Name"
             placeholderTextColor={placeholderTextColor}
             value={organizationName}
             onChangeText={setOrganizationName}
@@ -144,7 +150,8 @@ export default function NewWorkspace() {
             ]}
             maxLength={40}
           />
-          <Text style={styles.title}>Joined Organizations</Text>
+
+          <Text style={[tw`mt-4`, styles.title]}>Joined Organizations</Text>
           {userMemberships?.data?.length > 0 ? (
             <FlatList
               data={userMemberships.data}
