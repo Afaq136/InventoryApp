@@ -31,7 +31,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "INVO APP to use your location."
         }
-      ]
+      ],
+      "expo-router"
     ]
   }
 }

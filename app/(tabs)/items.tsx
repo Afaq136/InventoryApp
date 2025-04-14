@@ -53,6 +53,8 @@ export default function Items() {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const [filteredItems, setFilteredItems] = useState<ItemsByFolder>({});
+
+  //Filter the items based on the search query
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredItems(itemsByFolder); //Reset if no search query
@@ -151,6 +153,8 @@ export default function Items() {
                 style={styles.addButton}
                 onPress={() => {
                   router.push("../addItems");
+                  //Hide the modal navigating to add item screen
+                  setModalVisible(false);
                 }}
               >
                 <Text style={tw`text-white`}>Add Item</Text>

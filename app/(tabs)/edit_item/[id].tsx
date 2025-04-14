@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { View, Text, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
 import { useTheme } from "@darkModeContext";
 import { getDynamicStyles } from "@styles";
 import { getItem } from "@itemsService";
@@ -12,7 +12,8 @@ import { router } from "expo-router";
 import ItemAnalytics from "@/app/item-analytics";
 import { Item } from "@/types/types";
 import Tags from "react-native-tags";
-import { Alert } from "react-native";
+//import { Alert } from "react-native";
+//import { Alert } from "react-native";
 
 export default function EditItem() {
   const { darkMode } = useTheme();
@@ -20,7 +21,10 @@ export default function EditItem() {
   // These styles change dynamically based on dark mode
   const dynamicStyles = getDynamicStyles(darkMode);
 
+  // The fields of the item after changes
   const [item, setItem] = useState<Item | null>();
+
+  // The fields of the item before any saved changes
   const [originalItem, setOriginalItem] = useState<Item | null>();
 
   const [loading, setLoading] = useState(true);
@@ -52,7 +56,26 @@ export default function EditItem() {
   }, [id]);
 
   const handleSave = async () => {
-    if (!item || !originalItem) return;
+    if (!item || !originalItem) {
+      Alert.alert("Error", "Item or Original item does not exist.");
+      return;
+    }
+
+    if (!item.name.trim()) {
+      Alert.alert("Error", "Item name is required.");
+      return;
+    }
+
+    // Check if quantity, minLevel, price, or totalValue are not numbers
+    if (
+      isNaN(item.quantity) ||
+      isNaN(item.minLevel) ||
+      isNaN(item.price) ||
+      isNaN(item.totalValue)
+    ) {
+      Alert.alert("Error", "Please enter a valid number.");
+      return;
+    }
 
     const nameRegex = /^[A-Za-z ]+$/;
     const categoryRegex = /^[A-Za-z ]+$/;
@@ -73,10 +96,11 @@ export default function EditItem() {
       (item.quantity ?? 0) === (originalItem.quantity ?? 0) &&
       (item.minLevel ?? 0) === (originalItem.minLevel ?? 0) &&
       (item.price ?? 0) === (originalItem.price ?? 0) &&
-      (item.tags ?? []).join(",") === (originalItem.tags ?? []).join(",");
+      (item.tags ?? []).join(",") === (originalItem.tags ?? []).join(",") &&
+      (item.location ?? "") === (originalItem.location ?? "");
 
     if (noChanges) {
-      console.log("No Changes", "No changes were made to the item.");
+      Alert.alert("No Changes", "No changes were made to the item.");
       return;
     }
 
@@ -84,7 +108,7 @@ export default function EditItem() {
       await editItem(originalItem, item); // Update item in the database
       router.push("/items");
     } catch (error) {
-      console.error("Error", "Failed to save item");
+      Alert.alert("Error", "Failed to save item");
     }
   };
 
@@ -141,6 +165,7 @@ export default function EditItem() {
                 style={[dynamicStyles.textInputStyle]}
               />
             </View>
+            {/* TODO, make into Dropdown list */}
             {/* Category */}
             <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
               <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
@@ -209,6 +234,19 @@ export default function EditItem() {
                 onChangeText={(text) => handleChange("totalValue", text)}
                 style={[dynamicStyles.textInputStyle]}
                 keyboardType="numeric"
+              />
+            </View>
+          </View>
+          {/* TODO, make into Dropdown list */}
+          {/* Location */}
+          <View style={dynamicStyles.row}>
+            <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
+              <Text style={[dynamicStyles.textStyle]}>Location</Text>
+              <TextInput
+                placeholder="-"
+                value={item.location}
+                onChangeText={(text) => handleChange("location", text)}
+                style={[dynamicStyles.textInputStyle]}
               />
             </View>
           </View>

@@ -10,6 +10,7 @@ export interface Item {
   price: number;
   totalValue: number;
   qrValue?: string;
+  location?: string;
 }
 
 export interface ItemHistoryEntry {
