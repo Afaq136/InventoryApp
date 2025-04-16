@@ -18,7 +18,7 @@ import { useNavigation } from "expo-router";
 import Tags from "react-native-tags";
 import { Item } from "@/types/types";
 import QRCodeGenerator from "../../components/qrCodeGenerator"; // Correct path to the QRCodeGenerator component
-import * as ImagePicker from 'expo-image-picker'; // New import for camera and image picker
+import * as ImagePicker from "expo-image-picker"; // New import for camera and image picker
 import { Image } from "react-native";
 
 export default function AddItem() {
@@ -79,13 +79,25 @@ export default function AddItem() {
       Alert.alert("Error", "Item name is required.");
       return;
     }
-    
-    const nameRegex = /^[A-Za-z\s]+$/;
-    if (!nameRegex.test(name.trim())) {
-      Alert.alert("Error", "Item name can only contain letters and spaces.");
+
+    const nameRegex = /^[A-Za-z\s-]+$/;
+    const categoryRegex = /^[A-Za-z\s-]+$/;
+
+    if (!nameRegex.test(name ?? "")) {
+      Alert.alert(
+        "Invalid Item Name",
+        "Item name should contain only letters and spaces."
+      );
       return;
     }
-    
+
+    if (!categoryRegex.test(category ?? "")) {
+      Alert.alert(
+        "Invalid Category",
+        "Category should contain only letters and spaces."
+      );
+      return;
+    }
 
     // Check if quantity, minLevel, price, or totalValue are not numbers
     if (
@@ -132,7 +144,7 @@ export default function AddItem() {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity style={tw`p-2`} onPress={handleSave}>
-          <Ionicons name="save" size={28} color="#00bcd4" style={tw`mx-2`} />
+          <Ionicons name="save" size={24} color="#00bcd4" style={tw`mx-2`} />
         </TouchableOpacity>
       ),
     });
@@ -156,7 +168,8 @@ export default function AddItem() {
     });
 
     if (!result.canceled) {
-      setPhotoUri(result.uri); // Save the photo URI
+      const asset = (result as ImagePicker.ImagePickerSuccessResult).assets[0];
+      setPhotoUri(asset.uri); // Save the photo URI
     }
   };
 
@@ -170,7 +183,10 @@ export default function AddItem() {
   
       <View style={tw`gap-2`}>
         {/* Photo Container */}
-        <TouchableOpacity onPress={handleAddPhoto} style={[dynamicStyles.photoContainer]}>
+        <TouchableOpacity
+          onPress={handleAddPhoto}
+          style={[dynamicStyles.photoContainer]}
+        >
           <Ionicons name="camera-outline" size={64} color="#00bcd4" />
           <Text style={dynamicStyles.textStyle}>Add photos</Text>
         </TouchableOpacity>
@@ -179,7 +195,10 @@ export default function AddItem() {
         {photoUri && (
           <View style={tw`mt-4`}>
             <Text style={dynamicStyles.textStyle}>Selected Photo:</Text>
-            <Image source={{ uri: photoUri }} style={{ width: 200, height: 200, borderRadius: 10 }} />
+            <Image
+              source={{ uri: photoUri }}
+              style={{ width: 200, height: 200, borderRadius: 10 }}
+            />
           </View>
         )}
 
@@ -241,7 +260,7 @@ export default function AddItem() {
               value={String(itemFields.price)}
               onChangeText={(text) => handleChange("price", Number(text))}
               style={[dynamicStyles.textInputStyle]}
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
             />
           </View>
           <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
@@ -251,7 +270,7 @@ export default function AddItem() {
               value={String(itemFields.totalValue)}
               onChangeText={(text) => handleChange("totalValue", Number(text))}
               style={[dynamicStyles.textInputStyle]}
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
             />
           </View>
         </View>

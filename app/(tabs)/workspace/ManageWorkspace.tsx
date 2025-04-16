@@ -14,19 +14,47 @@ import { Ionicons } from "@expo/vector-icons";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useTheme } from "@darkModeContext";
-import { useOrganization } from "@clerk/clerk-expo";
+import { useAuth, useUser, useOrganization } from "@clerk/clerk-expo";
 import { Alert } from "react-native";
+import { getDynamicStyles } from "@styles";
 
 export default function ManageWorkspace() {
   const { darkMode } = useTheme();
 
+  const dynamicStyles = getDynamicStyles(darkMode);
+
   const router = useRouter();
 
   const [workspaceName, setWorkspaceName] = useState("");
-  const [contributors, setContributors] = useState(["User1", "User2"]);
-  const [newContributor, setNewContributor] = useState("");
 
-  const { isLoaded, organization } = useOrganization();
+  const [newContributor, setNewContributor] = useState("");
+  const [isSubmitting, setSubmitting] = useState(false);
+
+  const { isLoaded, organization, invitations, memberships, membership } =
+    useOrganization({
+      invitations: {
+        // Set pagination parameters
+        infinite: true,
+      },
+      memberships: {
+        // Set pagination parameters
+        infinite: true,
+      },
+    });
+
+  //The user's current active organization
+  const { orgId } = useAuth();
+
+  //The current user
+  const { user } = useUser();
+
+  const isAdmin = membership?.role === "org:admin";
+
+  useEffect(() => {
+    if (isLoaded && organization?.name) {
+      setWorkspaceName(organization.name);
+    }
+  }, [organization]);
 
   if (!isLoaded) {
     return (
@@ -36,22 +64,67 @@ export default function ManageWorkspace() {
       </View>
     );
   }
+  if (!user) {
+    return <Text>You aren't signed in</Text>;
+  }
 
-  useEffect(() => {
-    if (isLoaded && organization?.name) {
-      setWorkspaceName(organization.name);
-    }
-  }, [isLoaded, organization]);
+  if (!organization) {
+    return (
+      <Text style={dynamicStyles.textStyle}>No active organization is set</Text>
+    );
+  }
 
-  const addContributor = () => {
+  const handleInvite = async () => {
     if (newContributor.trim()) {
-      setContributors([...contributors, newContributor]);
-      setNewContributor("");
+      try {
+        setSubmitting(true);
+        await organization.inviteMember({
+          emailAddress: newContributor,
+          role: "org:member",
+        });
+        if (invitations?.revalidate) {
+          await invitations.revalidate();
+        }
+        setNewContributor("");
+        Alert.alert(
+          "Success",
+          `Successfully sent an invitation to ${newContributor}!`
+        );
+      } catch (error: any) {
+        Alert.alert("Error", error.message || "Something went wrong");
+      } finally {
+        setSubmitting(false);
+      }
+    } else {
+      Alert.alert(`Please enter a valid email address`);
     }
   };
 
-  const removeContributor = (name: string) => {
-    setContributors(contributors.filter((contributor) => contributor !== name));
+  const renderInvite = ({ item }: any) => {
+    return (
+      <View style={styles.contributor}>
+        <Text>{item.emailAddress}</Text>
+        <Text>{item.role}</Text>
+        <TouchableOpacity
+          onPress={async () => {
+            try {
+              await item.revoke();
+              if (invitations?.revalidate) {
+                await invitations.revalidate();
+              }
+              Alert.alert(
+                "Success",
+                `Successfully canceled ${item.emailAddress}'s invite`
+              );
+            } catch (error: any) {
+              Alert.alert("Error", error.message || "Something went wrong");
+            }
+          }}
+        >
+          <Ionicons name="trash-outline" size={20} color="red" />
+        </TouchableOpacity>
+      </View>
+    );
   };
 
   return (
@@ -83,6 +156,7 @@ export default function ManageWorkspace() {
           <TextInput
             value={workspaceName}
             onChangeText={setWorkspaceName}
+            editable={isAdmin} // disables input if user is not an admin
             style={[
               styles.input,
               darkMode && {
@@ -90,36 +164,94 @@ export default function ManageWorkspace() {
                 color: "white",
                 borderColor: "white",
               },
+              !isAdmin && { opacity: 0.6 }, // visually indicate it's disabled
             ]}
           />
+          {workspaceName !== organization?.name && (
+            <TouchableOpacity
+              style={[
+                styles.addButton,
+                darkMode && { backgroundColor: "#0284c7" },
+              ]}
+              onPress={async () => {
+                try {
+                  await organization.update({ name: workspaceName });
+                  Alert.alert(
+                    "Success",
+                    "Workspace name updated successfully!"
+                  );
+                } catch (error) {
+                  Alert.alert("Error", "Failed to update workspace name.");
+                  console.error(error);
+                }
+              }}
+            >
+              <Text style={tw`text-white`}>Save Changes</Text>
+            </TouchableOpacity>
+          )}
         </View>
-
+        {/* Membership List */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, darkMode && { color: "white" }]}>
-            Contributors
+            Members
           </Text>
           <FlatList
-            data={contributors}
-            keyExtractor={(item) => item}
+            data={memberships?.data}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View
-                style={[
-                  styles.contributor,
-                  darkMode && { backgroundColor: "#374151" },
-                ]}
-              >
-                <Text style={darkMode ? { color: "white" } : {}}>{item}</Text>
-                <TouchableOpacity onPress={() => removeContributor(item)}>
-                  <Ionicons name="trash-outline" size={20} color="red" />
-                </TouchableOpacity>
+              <View style={dynamicStyles.card}>
+                <Text style={dynamicStyles.textStyle}>
+                  {item.publicUserData.identifier}
+                </Text>
+                <Text style={dynamicStyles.textStyle}>{item.role}</Text>
+                {item.publicUserData.userId === user.id ? (
+                  <Ionicons name="person-outline" size={20} color="#00bcd4" />
+                ) : (
+                  isAdmin && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        try {
+                          item.destroy();
+                          Alert.alert(
+                            "Success",
+                            `Successfully removed ${item.publicUserData.identifier} from organization.`
+                          );
+                        } catch (error: any) {
+                          Alert.alert(
+                            "Error",
+                            error.message || "Something went wrong"
+                          );
+                        }
+                      }}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="red" />
+                    </TouchableOpacity>
+                  )
+                )}
               </View>
             )}
           />
+          {/* Invitation List */}
+          {invitations?.data && invitations.data.length > 0 && (
+            <>
+              <Text
+                style={[styles.sectionTitle, darkMode && { color: "white" }]}
+              >
+                Invitations
+              </Text>
+              <FlatList
+                data={invitations.data}
+                keyExtractor={(item: any) => item.id}
+                renderItem={renderInvite}
+              />
+            </>
+          )}
           <TextInput
             placeholder="Invite Contributor"
             placeholderTextColor={darkMode ? "#9CA3AF" : "#666"}
             value={newContributor}
             onChangeText={setNewContributor}
+            editable={!isSubmitting}
             style={[
               styles.input,
               darkMode && {
@@ -134,9 +266,10 @@ export default function ManageWorkspace() {
               styles.addButton,
               darkMode && { backgroundColor: "#0284c7" },
             ]}
-            onPress={addContributor}
+            onPress={handleInvite}
+            disabled={isSubmitting}
           >
-            <Text style={tw`text-white`}>Add Contributor</Text>
+            <Text style={tw`text-white`}>Send Invite</Text>
           </TouchableOpacity>
         </View>
       </View>

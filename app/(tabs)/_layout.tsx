@@ -2,13 +2,26 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs, router } from "expo-router";
 import { useTheme } from "@darkModeContext";
 import { getDynamicStyles } from "@styles";
-import { TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { Ionicons } from "@expo/vector-icons"; // Assuming you're using Expo for icons
 import { Text } from "react-native";
+import { useAuth } from "@clerk/clerk-expo";
+import { useEffect } from "react";
 
 export default function TabLayout() {
   const { darkMode } = useTheme();
+  const { isSignedIn } = useAuth();
+
+  //Causes hook error
+  /*
+  useEffect(() => {
+    if (!isSignedIn) {
+      Alert.alert("You are no longer signed in.");
+      router.push("/login");
+    }
+  }, [isSignedIn]);
+  */
 
   //These styles change dynamically based off of dark mode
   const dynamicStyles = getDynamicStyles(darkMode);
@@ -105,7 +118,7 @@ export default function TabLayout() {
             >
               <Ionicons
                 name="arrow-back"
-                size={28}
+                size={24}
                 color="#00bcd4"
                 style={tw`mx-2`}
               />
@@ -127,7 +140,7 @@ export default function TabLayout() {
             >
               <Ionicons
                 name="arrow-back"
-                size={28}
+                size={24}
                 color="#00bcd4"
                 style={tw`mx-2`}
               />
@@ -150,7 +163,7 @@ export default function TabLayout() {
             >
               <Ionicons
                 name="arrow-back"
-                size={28}
+                size={24}
                 color="#00bcd4"
                 style={tw`mx-2`}
               />
@@ -171,7 +184,7 @@ export default function TabLayout() {
             >
               <Ionicons
                 name="arrow-back"
-                size={28}
+                size={24}
                 color="#00bcd4"
                 style={tw`mx-2`}
               />
@@ -192,7 +205,7 @@ export default function TabLayout() {
             >
               <Ionicons
                 name="arrow-back"
-                size={28}
+                size={24}
                 color="#00bcd4"
                 style={tw`mx-2`}
               />
@@ -213,7 +226,7 @@ export default function TabLayout() {
             >
               <Ionicons
                 name="arrow-back"
-                size={28}
+                size={24}
                 color="#00bcd4"
                 style={tw`mx-2`}
               />

@@ -57,16 +57,19 @@ export default function Items() {
   //Filter the items based on the search query
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredItems(itemsByFolder); //Reset if no search query
+      setFilteredItems(itemsByFolder); // Reset if no search query
       return;
     }
 
     const newFilteredItems: ItemsByFolder = {};
 
     Object.keys(itemsByFolder).forEach((folderName) => {
-      const filtered = itemsByFolder[folderName].filter(
-        (item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()) // Case-insensitive search
-      );
+      const filtered = itemsByFolder[folderName].filter((item) => {
+        const query = searchQuery.toLowerCase();
+        const nameMatch = item.name.toLowerCase().includes(query);
+        const locationMatch = item.location?.toLowerCase().includes(query);
+        return nameMatch || locationMatch;
+      });
 
       if (filtered.length > 0) {
         newFilteredItems[folderName] = filtered;

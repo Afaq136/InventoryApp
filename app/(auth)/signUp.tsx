@@ -38,7 +38,6 @@ export default function SignUp() {
 
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
-
     const emailRegex = /^[^@]+@[\w.-]+$/;
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
     const fullNameRegex = /^[A-Za-z]+ [A-Za-z]+$/;
@@ -46,15 +45,18 @@ export default function SignUp() {
     if (!isLoaded) return;
 
     if (!fullNameRegex.test(fullName)) {
-      Alert.alert("Invalid Name", "Please enter your first and last name using only letters.");
+      Alert.alert(
+        "Invalid Name",
+        "Please enter your first and last name using only letters."
+      );
       return;
     }
-    
+
     if (!emailRegex.test(emailAddress)) {
       Alert.alert("Invalid Email", "Please enter a valid email address.");
       return;
     }
-  
+
     if (!passwordRegex.test(password)) {
       Alert.alert(
         "Weak Password",
@@ -197,7 +199,7 @@ export default function SignUp() {
             <TextInput
               placeholder="Email"
               value={emailAddress}
-              onChangeText={setEmailAddress}
+              onChangeText={(text) => setEmailAddress(text.replace(/\s/g, ""))}
               autoCapitalize="none"
               style={[
                 tw`border border-gray-300 rounded-lg p-2 mb-2`,
@@ -222,7 +224,7 @@ export default function SignUp() {
                 ]}
                 value={password}
                 autoCapitalize="none"
-                onChangeText={setPassword}
+                onChangeText={(text) => setPassword(text.replace(/\s/g, ""))}
               />
               <TouchableOpacity
                 style={tw`absolute right-2 top-2`}
@@ -249,7 +251,9 @@ export default function SignUp() {
                 ]}
                 value={confirmPassword}
                 autoCapitalize="none"
-                onChangeText={setConfirmPassword}
+                onChangeText={(text) =>
+                  setConfirmPassword(text.replace(/\s/g, ""))
+                }
               />
               <TouchableOpacity
                 style={tw`absolute right-2 top-2`}

@@ -3,14 +3,21 @@ import { View, Text, Switch, TouchableOpacity, StyleSheet } from "react-native";
 import { useTheme } from "@darkModeContext";
 import { Link, router } from "expo-router";
 import SignOutButton from "@/components/SignOutButton";
+import { getDynamicStyles } from "@styles";
+import { useOrganization } from "@clerk/clerk-expo";
 
 export default function Menu() {
+  const { organization } = useOrganization();
+
   const { darkMode, toggleDarkMode } = useTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const theme = darkMode ? "dark" : "light";
 
   const styles = getStyles(theme);
+
+  //These styles change dynamically based off of dark mode
+  const dynamicStyles = getDynamicStyles(darkMode);
 
   return (
     <View style={styles.container}>
@@ -26,30 +33,35 @@ export default function Menu() {
 
       <Text style={styles.text}>MY WORKSPACES</Text>
       <TouchableOpacity
-        style={styles.card}
+        style={dynamicStyles.card}
         onPress={() => router.push("workspace/ManageWorkspace")}
+        disabled={!organization}
       >
         <Text style={styles.cardText}>Organization</Text>
-        <Text style={styles.cardText}>1 Contributor</Text>
+        <Text style={styles.cardText}>
+          {organization
+            ? `${organization?.membersCount} Contributors`
+            : "You have no active organization"}
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => router.push("workspace/join-workspace")}
-        style={styles.card}
+        style={dynamicStyles.card}
       >
         <Text style={styles.cardText}>Join Organization</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => router.push("workspace/new-workspace")}
-        style={styles.card}
+        style={dynamicStyles.card}
       >
         <Text style={styles.cardText}>Add New Organization</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.card}>
+      <TouchableOpacity style={dynamicStyles.card}>
         <Text style={styles.cardText}>Archived Items</Text>
       </TouchableOpacity>
 
-      <View style={styles.card}>
+      <View style={dynamicStyles.card}>
         <Text style={styles.flexText}>Notifications</Text>
         <Switch
           value={notificationsEnabled}
@@ -58,7 +70,7 @@ export default function Menu() {
           thumbColor={notificationsEnabled ? "#ccc" : "#f4f3f4"}
         />
       </View>
-      <View style={styles.card}>
+      <View style={dynamicStyles.card}>
         <Text style={styles.flexText}>Display</Text>
         <View style={styles.row}>
           <Text style={styles.text}>

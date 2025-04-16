@@ -5,23 +5,25 @@ import tw from "twrnc";
 import { useRouter } from "expo-router";
 import { useTheme } from "./context/DarkModeContext";
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
+import { useOrganization } from "@clerk/clerk-expo";
 
-import * as Location from 'expo-location';
-
+import * as Location from "expo-location";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { darkMode } = useTheme();
   const { user } = useUser();
 
+  const { organization } = useOrganization();
+
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current; // Starts invisible
   const translateY = useRef(new Animated.Value(100)).current; // Starts below screen
 
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-
 
   useEffect(() => {
     // Animate logo and text upwards with fade-in
@@ -38,19 +40,16 @@ export default function HomeScreen() {
     }).start();
 
     async function getCurrentLocation() {
-      
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
         return;
       }
 
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
-      
-      
     }
- 
+
     getCurrentLocation();
   }, []);
 
@@ -81,20 +80,37 @@ export default function HomeScreen() {
           >
             Hello {user?.emailAddresses[0].emailAddress}
           </Text>
+
           {/* Continue Button */}
-          <TouchableOpacity
-            onPress={() => router.push("/dashboard")}
-            style={tw`mb-4`}
-          >
-            <Text
-              style={[
-                tw`text-green-500 text-lg font-bold text-center`,
-                darkMode && { color: "#34d399" },
-              ]}
+          {organization ? (
+            <TouchableOpacity
+              onPress={() => router.push("/dashboard")}
+              style={tw`mb-4`}
             >
-              Continue
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  tw`text-green-500 text-lg font-bold text-center`,
+                  darkMode && { color: "#34d399" },
+                ]}
+              >
+                Continue
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => router.push("/workspace/new-workspace")}
+              style={tw`mb-4`}
+            >
+              <Text
+                style={[
+                  tw`text-green-500 text-lg font-bold text-center`,
+                  darkMode && { color: "#34d399" },
+                ]}
+              >
+                Create an Organization
+              </Text>
+            </TouchableOpacity>
+          )}
         </SignedIn>
         <SignedOut>
           {/* Text */}

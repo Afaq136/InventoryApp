@@ -12,6 +12,8 @@ export const getDynamicStyles = (darkMode: boolean) => StyleSheet.create(
     greyTextStyle: tw`text-gray-400`,
     whiteTextStyle: tw`text-white`,
 
+    card: tw`${darkMode ? "bg-gray-700" : "bg-white"} items-center justify-between flex-row mb-3 py-3 px-3 rounded-lg`,
+    verticalCard: tw`${darkMode ? "bg-gray-700" : "bg-white"} items-center justify-between flex-col mb-3 py-3 px-3 rounded-lg`,
 
     redButtonStyle: tw`${darkMode ? "bg-red-800" : "bg-white"} flex-1 mb-2 mx-1 py-2 px-2 border border-red-500 rounded-md items-center`,
     redTextStyle: tw`text-red-500`,
