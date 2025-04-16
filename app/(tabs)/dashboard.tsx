@@ -162,7 +162,10 @@ export default function Dashboard() {
             {organizationName}
           </Text>
         ) : (
-          <Text>You are not part of an organization</Text>
+          <Text style={{ color: darkMode ? "#ffffff" : "#000000" }}>
+  You are not part of an organization
+</Text>
+
         )}
         <TouchableOpacity onPress={() => setModalVisible(true)}>
           <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>▼</Text>
@@ -199,60 +202,58 @@ export default function Dashboard() {
 
       {/**Inventory Summary**/}
       <TouchableOpacity
-        style={[
-          dynamicStyles.borderCardStyle,
-          {
-            borderColor: "#06b6d4",
-            borderWidth: 1,
-            backgroundColor: darkMode ? "#374151" : "#ffffff",
-          },
-        ]}
-        onPress={() => router.push("/inventory-summary")}
-      >
-        <Text
-          style={[
-            tw`text-lg font-semibold mb-3 text-center`,
-            dynamicStyles.blueTextStyle,
-          ]}
-        >
-          Inventory Summary
-        </Text>
-        <View style={tw`flex-col justify-between`}>
-          <View style={tw`items-center`}>
-            <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
-              Items
-            </Text>
-            <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
-              {totalItems}
-            </Text>
-          </View>
-          <View style={tw`items-center`}>
-            <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
-              Categories
-            </Text>
-            <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
-              {totalCategories}
-            </Text>
-          </View>
-          <View style={tw`items-center`}>
-            <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
-              Total Quantity
-            </Text>
-            <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
-              {totalQuantity} Units
-            </Text>
-          </View>
-          <View style={tw`items-center`}>
-            <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
-              Total Value
-            </Text>
-            <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
-              ${totalValue.toFixed(2)}
-            </Text>
-            {/* Displaying the total value with 2 decimal places */}
-          </View>
-        </View>
-      </TouchableOpacity>
+  style={[
+    dynamicStyles.borderCardStyle,
+    {
+      borderColor: "#06b6d4",
+      borderWidth: 1,
+      backgroundColor: darkMode ? "#374151" : "#ffffff",
+    },
+  ]}
+  onPress={() => router.push("/inventory-summary")}
+>
+  <Text
+    style={[
+      tw`text-lg font-semibold mb-3 text-center`,
+      dynamicStyles.blueTextStyle,
+    ]}
+  >
+    Inventory Summary
+  </Text>
+
+  <View style={tw`flex-row justify-center mb-2`}>
+  <View style={tw`items-center mr-8`}>
+    <Text style={[tw`font-bold`, dynamicStyles.textStyle]}>Items</Text>
+    <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
+      {totalItems}
+    </Text>
+  </View>
+  <View style={tw`items-center ml-8`}>
+    <Text style={[tw`font-bold`, dynamicStyles.textStyle]}>Categories</Text>
+    <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
+      {totalCategories}
+    </Text>
+  </View>
+</View>
+
+
+<View style={tw`flex-row justify-center mb-2`}>
+  <View style={tw`items-center mr-8`}>
+    <Text style={[tw`font-bold`, dynamicStyles.textStyle]}>Total Quantity</Text>
+    <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
+      {totalQuantity} Units
+    </Text>
+  </View>
+  <View style={tw`items-center ml-8`}>
+    <Text style={[tw`font-bold`, dynamicStyles.textStyle]}>Total Value</Text>
+    <Text style={[tw`text-lg`, dynamicStyles.textStyle]}>
+      ${totalValue.toFixed(2)}
+    </Text>
+  </View>
+</View>
+
+</TouchableOpacity>
+
       {/**End of inventory summary**/}
 
       <View style={dynamicStyles.row}>
