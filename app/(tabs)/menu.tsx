@@ -4,10 +4,13 @@ import { useTheme } from "@darkModeContext";
 import { Link, router } from "expo-router";
 import SignOutButton from "@/components/SignOutButton";
 import { getDynamicStyles } from "@styles";
-import { useOrganization } from "@clerk/clerk-expo";
+import { useOrganization, useOrganizationList } from "@clerk/clerk-expo";
 
 export default function Menu() {
   const { organization } = useOrganization();
+
+  // https://clerk.com/docs/hooks/use-organization-list
+  const { userInvitations } = useOrganizationList();
 
   const { darkMode, toggleDarkMode } = useTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -40,7 +43,9 @@ export default function Menu() {
         <Text style={styles.cardText}>Organization</Text>
         <Text style={styles.cardText}>
           {organization
-            ? `${organization?.membersCount} Contributors`
+            ? `${organization.membersCount} Contributor${
+                organization.membersCount === 1 ? "" : "s"
+              }`
             : "You have no active organization"}
         </Text>
       </TouchableOpacity>
@@ -49,6 +54,13 @@ export default function Menu() {
         style={dynamicStyles.card}
       >
         <Text style={styles.cardText}>Join Organization</Text>
+        <Text style={styles.cardText}>
+          {organization
+            ? `${userInvitations.count} Invitation${
+                userInvitations.count === 1 ? "" : "s"
+              }`
+            : "You have no active organization"}
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => router.push("workspace/new-workspace")}

@@ -433,7 +433,7 @@ export default function Dashboard() {
               ]}
               onPress={() => {
                 setModalVisible(false); // Hide the modal
-                router.push("/ManageWorkspace"); // Navigate to the other page
+                router.push("/workspace/ManageWorkspace"); // Navigate to the other page
               }}
             >
               <Text
@@ -451,6 +451,10 @@ export default function Dashboard() {
                 dynamicStyles.modalButton,
                 { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" },
               ]}
+              onPress={() => {
+                setModalVisible(false); // Hide the modal
+                router.push("/workspace/join-workspace"); // Navigate to the other page
+              }}
             >
               <Text
                 style={[
@@ -467,6 +471,10 @@ export default function Dashboard() {
                 dynamicStyles.modalButton,
                 { backgroundColor: darkMode ? "#1F2937" : "#f1f5f9" },
               ]}
+              onPress={() => {
+                setModalVisible(false); // Hide the modal
+                router.push("/workspace/new-workspace"); // Navigate to the other page
+              }}
             >
               <Text
                 style={[
