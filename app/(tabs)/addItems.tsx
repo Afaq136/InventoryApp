@@ -295,7 +295,6 @@ export default function AddItem() {
           initialText=""
           textInputProps={{
             placeholder: "Enter tag",
-            //laceholderTextColor: "white",
           }}
           initialTags={itemFields.tags}
           onChangeTags={(tags) => handleChange("tags", tags)}
