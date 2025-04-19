@@ -13,7 +13,6 @@ import ItemAnalytics from "@/app/item-analytics";
 import { Item } from "@/types/types";
 import Tags from "react-native-tags";
 
-
 export default function EditItem() {
   const { darkMode } = useTheme();
 
