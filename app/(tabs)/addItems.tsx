@@ -20,6 +20,9 @@ import { Item } from "@/types/types";
 import QRCodeGenerator from "../../components/qrCodeGenerator"; // Correct path to the QRCodeGenerator component
 import * as ImagePicker from "expo-image-picker"; // New import for camera and image picker
 import { Image } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import DropDownPicker from "react-native-dropdown-picker";
+
 
 export default function AddItem() {
   const { darkMode } = useTheme();
@@ -43,7 +46,15 @@ export default function AddItem() {
 
   const [photoUri, setPhotoUri] = useState<string | null>(null); //camera state
   const navigation = useNavigation();
-
+  const categoryOptions = ["Clothes", "Food", "Books", "Other"];
+  const [selectedCategory, setSelectedCategory] = useState<string>(""); // For Picker
+  const [isOtherCategory, setIsOtherCategory] = useState<boolean>(false); // To toggle text input
+  const [isEditingCategory, setIsEditingCategory] = useState<boolean>(true);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [categoryItems, setCategoryItems] = useState(
+    categoryOptions.map((opt) => ({ label: opt, value: opt }))
+  );
+  
   useEffect(() => {
     // Camera Access
     const requestCameraPermission = async () => {
@@ -217,14 +228,99 @@ export default function AddItem() {
           </View>
           {/* TODO, Category into Dropdown list */}
           <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
-            <Text style={[dynamicStyles.textStyle]}>Category</Text>
-            <TextInput
-              placeholder="-"
-              value={itemFields.category}
-              onChangeText={(text) => handleChange("category", text)}
-              style={[dynamicStyles.textInputStyle]}
-            />
-          </View>
+  <Text style={[dynamicStyles.textStyle]}>Category</Text>
+
+  {isEditingCategory ? (
+    <DropDownPicker
+      open={categoryDropdownOpen}
+      value={itemFields.category}
+      items={categoryItems}
+      setOpen={setCategoryDropdownOpen}
+      setValue={(callback) => {
+        const selected = callback(itemFields.category);
+        if (selected === "Other") {
+          setIsOtherCategory(true);
+          // Keep 'Other' temporarily but don't set category yet
+        } else {
+          handleChange("category", selected);
+          setIsEditingCategory(false);
+          setIsOtherCategory(false);
+        }
+      }}      
+      setItems={setCategoryItems}
+      placeholder="Select category"
+      style={{
+        backgroundColor: darkMode ? "#1f2937" : "#f0f0f0",
+        borderColor: "#00bcd4",
+        minHeight: 40,
+      }}
+      dropDownContainerStyle={{
+        backgroundColor: darkMode ? "#374151" : "#fff",
+        borderColor: "#00bcd4",
+        zIndex: 1000,
+      }}
+      textStyle={{
+        color: darkMode ? "white" : "black",
+        fontSize: 14,
+      }}
+      listItemLabelStyle={{
+        fontSize: 14,
+      }}
+      placeholderStyle={{
+        color: "#999",
+      }}
+    />
+  ) : (
+    <View
+      style={[
+        tw`flex-row justify-between items-center`,
+        dynamicStyles.textInputStyle,
+      ]}
+    >
+      <Text style={[tw`text-base`, dynamicStyles.textStyle]}>
+        {itemFields.category}
+      </Text>
+      <TouchableOpacity
+        onPress={() => {
+          setIsEditingCategory(true);
+          if (itemFields.category === "Other") {
+            setIsOtherCategory(true);
+          }
+        }}
+      >
+        <Text style={[tw`text-sm text-blue-500`]}>Change</Text>
+      </TouchableOpacity>
+    </View>
+  )}
+
+{isOtherCategory && (
+  <TextInput
+    placeholder="Enter custom category"
+    value={itemFields.category}
+    onChangeText={(text) => {
+      handleChange("category", text);
+
+      // Dynamically add the custom category to the dropdown list
+      if (
+        text.trim().length > 0 &&
+        !categoryOptions.includes(text) &&
+        !categoryItems.some((item) => item.value === text)
+      ) {
+        setCategoryItems((prev) => [
+          ...prev.filter((item) => item.value !== "Other"), // remove Other
+          { label: text, value: text },
+          { label: "Other", value: "Other" }, // add Other back at the end
+        ]);
+      }
+    }}
+    style={[dynamicStyles.textInputStyle, tw`mt-2`]}
+    placeholderTextColor={darkMode ? "#aaa" : "#666"}
+  />
+)}
+
+
+</View>
+
         </View>
 
         {/* Row 2 of text inputs */}
@@ -253,27 +349,50 @@ export default function AddItem() {
 
         {/* Row 3 of text inputs */}
         <View style={dynamicStyles.row}>
-          <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
-            <Text style={[dynamicStyles.textStyle]}>Price</Text>
-            <TextInput
-              placeholder="-"
-              value={String(itemFields.price)}
-              onChangeText={(text) => handleChange("price", Number(text))}
-              style={[dynamicStyles.textInputStyle]}
-              keyboardType="decimal-pad"
-            />
-          </View>
-          <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
-            <Text style={[dynamicStyles.textStyle]}>Total Value</Text>
-            <TextInput
-              placeholder="-"
-              value={String(itemFields.totalValue)}
-              onChangeText={(text) => handleChange("totalValue", Number(text))}
-              style={[dynamicStyles.textInputStyle]}
-              keyboardType="decimal-pad"
-            />
-          </View>
-        </View>
+  {/* Price Field */}
+  <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
+    <Text style={[dynamicStyles.textStyle]}>Price</Text>
+    <TextInput
+      placeholder="-"
+      value={itemFields.price.toString()}
+      onChangeText={(text) => {
+        // Allow digits and only one decimal point
+        const formatted = text.replace(/[^0-9.]/g, "");
+        const decimalCount = (formatted.match(/\./g) || []).length;
+        if (decimalCount > 1) return;
+
+        if (/^\d*\.?\d{0,2}$/.test(formatted) || formatted === "") {
+          handleChange("price", formatted === "" ? 0 : formatted);
+        }
+      }}
+      keyboardType="numeric"
+      style={[dynamicStyles.textInputStyle]}
+      placeholderTextColor={darkMode ? "#aaa" : "#666"}
+    />
+  </View>
+
+  {/* Total Value Field */}
+  <View style={[dynamicStyles.inputContainer, tw`flex-1`]}>
+    <Text style={[dynamicStyles.textStyle]}>Total Value</Text>
+    <TextInput
+      placeholder="-"
+      value={itemFields.totalValue.toString()}
+      onChangeText={(text) => {
+        const formatted = text.replace(/[^0-9.]/g, "");
+        const decimalCount = (formatted.match(/\./g) || []).length;
+        if (decimalCount > 1) return;
+
+        if (/^\d*\.?\d{0,2}$/.test(formatted) || formatted === "") {
+          handleChange("totalValue", formatted === "" ? 0 : formatted);
+        }
+      }}
+      keyboardType="numeric"
+      style={[dynamicStyles.textInputStyle]}
+      placeholderTextColor={darkMode ? "#aaa" : "#666"}
+    />
+  </View>
+</View>
+
 
         {/* TODO, make into Dropdown list */}
         {/* Location */}
