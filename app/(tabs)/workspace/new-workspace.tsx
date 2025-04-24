@@ -154,8 +154,19 @@ export default function NewWorkspace() {
   };
 
   return (
-    <SafeAreaView style={[tw`flex-1`]}>
-      <View style={dynamicStyles.containerStyle}>
+    <SafeAreaView
+    style={[
+      tw`flex-1`,
+      { backgroundColor: darkMode ? "#1F2937" : "#ffffff" },
+    ]}
+  >
+    <View
+      style={[
+        dynamicStyles.containerStyle,
+        { backgroundColor: darkMode ? "#1F2937" : "#ffffff" },
+      ]}
+    >
+  
         {/* Display the organization name, otherwise display a message*/}
         {organization ? (
           <Text style={[tw`text-xl font-bold`, dynamicStyles.textStyle]}>
