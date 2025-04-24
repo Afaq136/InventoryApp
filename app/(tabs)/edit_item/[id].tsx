@@ -143,8 +143,13 @@ export default function EditItem() {
   };
 
   return (
-    <SafeAreaView style={dynamicStyles.containerStyle}>
-      
+    <SafeAreaView
+    style={[
+      dynamicStyles.containerStyle,
+      { backgroundColor: darkMode ? "#121212" : "#ffffff" },
+    ]}
+  >
+  
       {/* Label for item being edited */}
       <View style={dynamicStyles.header}>
         <Text style={[dynamicStyles.textStyle, dynamicStyles.headerTextStyle]}>

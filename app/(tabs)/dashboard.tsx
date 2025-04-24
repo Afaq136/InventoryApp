@@ -144,7 +144,7 @@ export default function Dashboard() {
   
           console.log("Items have been successfully imported!");
         },
-        error: (error) => {
+        error: (error: { message: any; }) => {
           console.error("Error parsing CSV:", error.message);
         },
       });
