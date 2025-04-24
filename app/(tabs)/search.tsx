@@ -36,7 +36,7 @@ export default function MyLocations() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: darkMode ? '#1F2937' : 'white' }]}>  {/* Dynamic background color */}
+    <View style={[styles.container, { backgroundColor: darkMode ? '#1F2937' : 'white' }]}>  
       <TextInput
         style={styles.addressInput}
         placeholder="Enter Address"
@@ -67,7 +67,7 @@ export default function MyLocations() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.locationItem}>
-             <Text style={{ color: darkMode ? 'white' : 'black' }}>{item.name}</Text>  {/* Updated Text color */}
+             <Text style={{ color: darkMode ? 'white' : 'black' }}>{item.name}</Text>  
             
           </View>
         )}
