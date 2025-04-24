@@ -150,8 +150,9 @@ export default function Login() {
       <SafeAreaView
         style={[
           tw`flex-1 items-center justify-center`,
-          darkMode && { backgroundColor: "#1F2937" },
+          { backgroundColor: darkMode ? "#1F2937" : "#ffffff" },
         ]}
+        
       >
         <Image
           source={require("@/assets/Logo3.png")}
