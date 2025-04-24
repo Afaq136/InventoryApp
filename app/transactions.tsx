@@ -16,7 +16,7 @@ export default function Transactions() {
           <Pressable style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={28} color={darkMode ? '#00bcd4' : '#00bcd4'} />
           </Pressable>
-          <Text style={[styles.headerText, darkMode && { color: 'white' }, { color: '#3b82f6' }]}>Transactions</Text>
+          <Text style={[styles.headerText, darkMode && { color: 'white' }, { color: '#06b6d4' }]}>Transactions</Text>
         </View>
 
         <View style={[styles.box, darkMode && { backgroundColor: '#374151', borderColor: 'white' }]}>
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   box: {
     borderWidth: 1,
-    borderColor: "#4A90E2", 
+    borderColor: "#06b6d4", 
     borderRadius: 10,
     padding: 20,
     backgroundColor: "#fff", 

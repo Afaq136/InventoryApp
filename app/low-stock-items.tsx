@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 24,
-    color: "#2563eb",
+    color: "#06b6d4",
   },
   box: {
     borderWidth: 1,

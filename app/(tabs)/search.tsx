@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import MapView, { Marker } from 'react-native-maps';
 import { StyleSheet, View, TextInput, Button, Alert, FlatList, Text } from 'react-native';
+import { useTheme } from "@darkModeContext"; // Import the theme context
 
 export default function MyLocations() {
+  const { darkMode } = useTheme();  // Access the darkMode state from the theme context
   const [address, setAddress] = useState('');
   const [locations, setLocations] = useState([
 
@@ -34,7 +36,7 @@ export default function MyLocations() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: darkMode ? '#1F2937' : 'white' }]}>  {/* Dynamic background color */}
       <TextInput
         style={styles.addressInput}
         placeholder="Enter Address"
@@ -45,10 +47,8 @@ export default function MyLocations() {
       <MapView
         style={styles.map}
         initialRegion={{
-          
           latitude: 40.734189,
           longitude: -73.678818,
-
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
@@ -62,11 +62,13 @@ export default function MyLocations() {
         ))}
       </MapView>
       <FlatList
+      
         data={locations}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.locationItem}>
-            <Text>{item.name}</Text>
+             <Text style={{ color: darkMode ? 'white' : 'black' }}>{item.name}</Text>  {/* Updated Text color */}
+            
           </View>
         )}
       />

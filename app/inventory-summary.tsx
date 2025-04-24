@@ -58,7 +58,7 @@ export default function InventorySummary() {
           <Text
             style={[
               styles.headerText,
-              darkMode ? { color: "#3b82f6" } : { color: "#3b82f6" },
+              darkMode ? { color: "#06b6d4" } : { color: "#06b6d4" },
             ]}
           >
             INVENTORY SUMMARY
@@ -128,7 +128,7 @@ export default function InventorySummary() {
         <Text
           style={[
             styles.chartTitle,
-            { color: darkMode ? "#3b82f6" : "#3b82f6" },
+            { color: darkMode ? "#06b6d4" : "#06b6d4" },
           ]}
         >
           Inventory Breakdown
