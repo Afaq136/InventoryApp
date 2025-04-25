@@ -19,6 +19,8 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { FIREBASE_AUTH } from "@firebaseConfig";
 import { useTheme } from "@darkModeContext";
 import { useSignUp } from "@clerk/clerk-expo";
+import { Ionicons } from "@expo/vector-icons";
+
 
 export default function SignUp() {
   const { darkMode } = useTheme();
@@ -133,19 +135,88 @@ export default function SignUp() {
   //Pending verification screen
   if (pendingVerification) {
     return (
-      <View>
-        <Text>Verify your email</Text>
-        <TextInput
-          value={code}
-          placeholder="Enter your verification code"
-          onChangeText={(code) => setCode(code)}
-        />
-        <TouchableOpacity onPress={onVerifyPress}>
-          <Text>Verify</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View
+          style={[
+            tw`flex-1 items-center justify-center px-10`,
+            { backgroundColor: darkMode ? "#1F2937" : "#ffffff" },
+          ]}
+        >
+          <Image
+            source={require("@/assets/Logo3.png")}
+            style={tw`w-40 h-20 mb-6`}
+          />
+          <Text
+            style={[
+              tw`text-xl font-bold mb-2 text-blue-500`,
+              darkMode && { color: "#60a5fa" },
+            ]}
+          >
+            Verify your email
+          </Text>
+          <Text
+            style={[
+              tw`text-sm text-center mb-6 text-gray-600`,
+              darkMode && { color: "#d1d5db" },
+            ]}
+          >
+            We've sent a verification code to your email. Please enter it below.
+          </Text>
+  
+          <TextInput
+            value={code}
+            placeholder="Verification code"
+            placeholderTextColor={darkMode ? "#9ca3af" : "#6b7280"}
+            onChangeText={(text) => setCode(text.replace(/\s/g, ""))}
+            keyboardType="numeric"
+            style={[
+              tw`border border-gray-300 rounded-lg p-3 w-full mb-4`,
+              darkMode && {
+                backgroundColor: "#374151",
+                borderColor: "#9ca3af",
+                color: "#e5e7eb",
+              },
+            ]}
+          />
+  
+          <TouchableOpacity onPress={onVerifyPress}>
+            <View
+              style={[
+                tw`bg-blue-500 py-2 px-6 rounded-lg mb-4`,
+                darkMode && { backgroundColor: "#3b82f6" },
+              ]}
+            >
+              <Text
+                style={[
+                  tw`text-white text-sm text-center`,
+                  darkMode && { color: "#f3f4f6" },
+                ]}
+              >
+                Verify
+              </Text>
+            </View>
+          </TouchableOpacity>
+  
+          <Text style={[tw`text-sm`, darkMode && { color: "#d1d5db" }]}>
+            Didn't receive the code?
+          </Text>
+          <TouchableOpacity onPress={() => signUp.prepareEmailAddressVerification({ strategy: "email_code" })}>
+            <Text
+              style={[
+                tw`text-green-500 font-bold`,
+                darkMode && { color: "#34d399" },
+              ]}
+            >
+              Resend Code
+            </Text>
+          </TouchableOpacity>
+  
+          <StatusBar style={darkMode ? "light" : "auto"} />
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
+  
 
   return (
     <KeyboardAvoidingView
