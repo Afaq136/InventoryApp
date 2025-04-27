@@ -24,6 +24,7 @@ import { useItemStats } from "@/app/context/ItemStatsContext";
 import { addItem } from "@itemsService"; // Assuming addItem is your method to add a new item to the database
 //import { Item } from "@/types/types";
 import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 export default function Dashboard() {
   const { totalCategories, totalItems, totalQuantity, totalValue } =
@@ -102,7 +103,7 @@ export default function Dashboard() {
 
   const handleExport = async (organizationId: string) => {
     try {
-      const itemsCollection = collection(db, "items"); //pulls from the items collection
+      const itemsCollection = collection(db, "items");
       const snapshot = await getDocs(itemsCollection);
   
       const itemsData = snapshot.docs.map((doc) => {
@@ -116,27 +117,36 @@ export default function Dashboard() {
           tags: item.tags.join(","), // Join tags as comma-separated
           minLevel: item.minLevel,
           location: item.location,
-          createdAt: item.createdAt?.toDate?.().toISOString?.() || "", //for timestamp
+          createdAt: item.createdAt?.toDate?.().toISOString?.() || "",
         };
       });
   
       if (itemsData.length === 0) {
-        console.log("No items to export.");
+        alert("No items to export.");
         return;
       }
   
       const csv = Papa.unparse(itemsData);
-  
-      // Define file path 
       const fileUri = `${FileSystem.documentDirectory}inventory_export.csv`;
+  
       await FileSystem.writeAsStringAsync(fileUri, csv, {
         encoding: FileSystem.EncodingType.UTF8,
       });
   
-      console.log(`Export successful! File saved at: ${fileUri}`);
-      alert("Export successful! Check your files or downloads folder.");
+      console.log(`File saved at: ${fileUri}`);
+  
+      if (!(await Sharing.isAvailableAsync())) {
+        alert("Sharing is not available on this device");
+        return;
+      }
+  
+      await Sharing.shareAsync(fileUri, {
+        mimeType: "text/csv",
+        dialogTitle: "Export Inventory Data",
+      });
+  
     } catch (error) {
-      console.error("Error exporting items:", error);
+      console.error("Export failed:", error);
       alert("Export failed. Please try again.");
     }
   };

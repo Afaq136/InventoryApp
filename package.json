@@ -59,7 +59,8 @@
     "twrnc": "^4.6.1",
     "undefined": "expo-auth-session/providers/google",
     "victory": "^37.3.6",
-    "victory-native": "^41.16.1"
+    "victory-native": "^41.16.1",
+    "expo-sharing": "~13.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
