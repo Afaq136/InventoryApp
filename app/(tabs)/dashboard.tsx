@@ -100,6 +100,47 @@ export default function Dashboard() {
     }
   };
 
+  const handleExport = async (organizationId: string) => {
+    try {
+      const itemsCollection = collection(db, "items"); //pulls from the items collection
+      const snapshot = await getDocs(itemsCollection);
+  
+      const itemsData = snapshot.docs.map((doc) => {
+        const item = doc.data() as Item;
+        return {
+          name: item.name,
+          category: item.category,
+          quantity: item.quantity,
+          isLow: item.isLow,
+          price: item.price,
+          tags: item.tags.join(","), // Join tags as comma-separated
+          minLevel: item.minLevel,
+          location: item.location,
+          createdAt: item.createdAt?.toDate?.().toISOString?.() || "", //for timestamp
+        };
+      });
+  
+      if (itemsData.length === 0) {
+        console.log("No items to export.");
+        return;
+      }
+  
+      const csv = Papa.unparse(itemsData);
+  
+      // Define file path 
+      const fileUri = `${FileSystem.documentDirectory}inventory_export.csv`;
+      await FileSystem.writeAsStringAsync(fileUri, csv, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+  
+      console.log(`Export successful! File saved at: ${fileUri}`);
+      alert("Export successful! Check your files or downloads folder.");
+    } catch (error) {
+      console.error("Error exporting items:", error);
+      alert("Export failed. Please try again.");
+    }
+  };
+
   const handleImport = async (organizationId: string) => {
     try {
       const res = await DocumentPicker.getDocumentAsync({
@@ -397,7 +438,7 @@ export default function Dashboard() {
               borderWidth: 0,
             },
           ]}
-          onPress={() => handleImport(organization.id)}
+          onPress={() => handleExport(organization.id)}
         >
           <Text style={[tw`font-semibold`, { color: "#06b6d4" }]}>Export</Text>
         </TouchableOpacity>
