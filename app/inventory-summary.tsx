@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import tw from "twrnc";
-import { useTheme } from "./context/DarkModeContext";
+import { useTheme } from "@darkModeContext";
 import { BarChart } from "react-native-chart-kit";
 
 export default function InventorySummary() {

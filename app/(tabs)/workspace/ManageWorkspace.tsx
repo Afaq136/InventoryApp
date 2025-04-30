@@ -102,9 +102,9 @@ export default function ManageWorkspace() {
 
   const renderInvite = ({ item }: any) => {
     return (
-      <View style={styles.contributor}>
-        <Text>{item.emailAddress}</Text>
-        <Text>{item.role}</Text>
+      <View style={dynamicStyles.card}>
+        <Text style={dynamicStyles.textStyle}>{item.emailAddress}</Text>
+        <Text style={dynamicStyles.textStyle}>{item.role}</Text>
         <TouchableOpacity
           onPress={async () => {
             try {
@@ -134,6 +134,9 @@ export default function ManageWorkspace() {
       <View
         style={[styles.container, darkMode && { backgroundColor: "#1F2937" }]}
       >
+        <Text style={[dynamicStyles.textStyle]}>
+          You are signed in as {String(user.primaryEmailAddress)}
+        </Text>
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, darkMode && { color: "white" }]}>
             Organization Logo
@@ -209,9 +212,14 @@ export default function ManageWorkspace() {
                 ) : (
                   isAdmin && (
                     <TouchableOpacity
-                      onPress={() => {
+                      onPress={async () => {
                         try {
-                          item.destroy();
+                          await item.destroy();
+
+                          if (memberships?.revalidate) {
+                            memberships.revalidate();
+                          }
+
                           Alert.alert(
                             "Success",
                             `Successfully removed ${item.publicUserData.identifier} from organization.`
@@ -315,15 +323,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: "black",
     backgroundColor: "#fff",
-  },
-  contributor: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 5,
-    marginBottom: 5,
   },
   addButton: {
     backgroundColor: "#00bcd4",

@@ -50,6 +50,26 @@ export default function NewWorkspace() {
       },
     });
 
+  const navigation = useNavigation();
+
+  //Put a refresh button on the right side of the header
+  //useLayoutEffect ensures the navigation bar updates before the UI is drawn
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        //Refresh Button
+        <TouchableOpacity
+          style={tw`p-2`}
+          onPress={userMemberships.revalidate}
+          disabled={userMemberships.isFetching || userMemberships.isLoading}
+        >
+          {/* Save Icon */}
+          <Ionicons name="refresh" size={24} color="#00bcd4" style={tw`mx-2`} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
   //The user's current active organization
   const { orgId } = useAuth();
 
@@ -86,26 +106,6 @@ export default function NewWorkspace() {
       console.error(JSON.stringify(err, null, 2));
     }
   };
-
-  const navigation = useNavigation();
-
-  //Put a refresh button on the right side of the header
-  //useLayoutEffect ensures the navigation bar updates before the UI is drawn
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        //Refresh Button
-        <TouchableOpacity
-          style={tw`p-2`}
-          onPress={userMemberships.revalidate}
-          disabled={userMemberships.isFetching || userMemberships.isLoading}
-        >
-          {/* Save Icon */}
-          <Ionicons name="refresh" size={24} color="#00bcd4" style={tw`mx-2`} />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
 
   const renderItem = ({ item }: any) => {
     //Check if the item's organization id matches the current active organization
@@ -154,19 +154,11 @@ export default function NewWorkspace() {
   };
 
   return (
-    <SafeAreaView
-    style={[
-      tw`flex-1`,
-      { backgroundColor: darkMode ? "#1F2937" : "#ffffff" },
-    ]}
-  >
-    <View
-      style={[
-        dynamicStyles.containerStyle,
-        { backgroundColor: darkMode ? "#1F2937" : "#ffffff" },
-      ]}
-    >
-  
+    <SafeAreaView style={[tw`flex-1`]}>
+      <View style={dynamicStyles.containerStyle}>
+        <Text style={[dynamicStyles.textStyle]}>
+          You are signed in as {String(user.primaryEmailAddress)}
+        </Text>
         {/* Display the organization name, otherwise display a message*/}
         {organization ? (
           <Text style={[tw`text-xl font-bold`, dynamicStyles.textStyle]}>
@@ -204,11 +196,18 @@ export default function NewWorkspace() {
           Joined Organizations
         </Text>
         {userMemberships?.data?.length > 0 ? (
-          <FlatList
-            data={userMemberships.data}
-            keyExtractor={(item: any) => item.id}
-            renderItem={renderItem}
-          />
+          userMemberships.isFetching ? (
+            <View style={styles.center}>
+              <ActivityIndicator size="large" />
+              <Text>Loading...</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={userMemberships.data}
+              keyExtractor={(item: any) => item.id}
+              renderItem={renderItem}
+            />
+          )
         ) : (
           <View style={styles.center}>
             <Text>No organizations found</Text>

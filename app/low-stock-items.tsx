@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Pressable,
@@ -7,27 +6,55 @@ import {
   StyleSheet,
   SafeAreaView,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import tw from "twrnc";
 
-import { useTheme } from "./context/DarkModeContext";
+import { useTheme } from "@darkModeContext";
 import { db } from "@firebaseConfig";
 
 import { removeItem } from "@itemsService";
 
-import { useItemStats } from "@/app/context/ItemStatsContext";
+import { useItemStats } from "@itemStatsContext";
 import FolderList from "@/components/folderList";
+import { useOrganization } from "@clerk/clerk-expo";
+import { getDynamicStyles } from "@styles";
 
 export default function LowStockItems() {
   const { lowStockItemsByFolder } = useItemStats();
+
+  // https://clerk.com/docs/hooks/use-organization
+  const { isLoaded, organization } = useOrganization();
 
   // selectedFolder stores the name of the currently selected folder.
   const [selectedFolder, setSelectedFolder] = useState<string>("");
 
   const { darkMode } = useTheme();
   const router = useRouter();
+
+  //These styles change dynamically based off of dark mode
+  const dynamicStyles = getDynamicStyles(darkMode);
+
+  if (!isLoaded) {
+    return (
+      <View style={dynamicStyles.center}>
+        <ActivityIndicator size="large" />
+        <Text style={dynamicStyles.textStyle}>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!organization) {
+    return (
+      <View style={dynamicStyles.containerStyle}>
+        <Text style={dynamicStyles.textStyle}>
+          You are not part of an organization.
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView
@@ -50,6 +77,7 @@ export default function LowStockItems() {
         </View>
 
         {/* If there are low stock items, display them, otherwise show a no items message */}
+
         {Object.keys(lowStockItemsByFolder).length > 0 ? (
           <FlatList // Outer list of folders
             data={Object.keys(lowStockItemsByFolder)}
@@ -58,6 +86,7 @@ export default function LowStockItems() {
               { item: folderName } // Destructure the folderName from item
             ) => (
               <FolderList
+                organizationID={organization.id}
                 folderName={folderName}
                 selectedFolder={selectedFolder}
                 setSelectedFolder={setSelectedFolder}

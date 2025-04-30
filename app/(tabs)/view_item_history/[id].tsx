@@ -7,24 +7,36 @@ import {
   StyleSheet,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { subscribeToItemHistory } from "@/services/itemChanges";
-import { ItemHistoryEntry } from "@/types/types";
+import { subscribeToItemHistory } from "@/services/itemChanges"; // adjust path
+import { Item, ItemHistoryEntry } from "@/types/types"; // adjust path
+import { useOrganization } from "@clerk/clerk-expo";
 
 const ItemHistoryScreen = () => {
   const { id } = useLocalSearchParams(); // id = itemId
   const [history, setHistory] = useState<ItemHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (typeof id === "string") {
-      const unsubscribe = subscribeToItemHistory(id, (entries) => {
-        setHistory(entries);
-        setLoading(false);
-      });
+  // https://clerk.com/docs/hooks/use-organization
+  const { organization } = useOrganization();
 
+  useEffect(() => {
+    if (!organization?.id) {
+      return;
+    }
+    if (typeof id === "string") {
+      // Start subscribing to real-time updates
+      const unsubscribe = subscribeToItemHistory(
+        organization.id,
+        id,
+        (entries: ItemHistoryEntry[]) => {
+          setHistory(entries);
+          setLoading(false);
+        }
+      );
+      
       return () => unsubscribe();
     }
-  }, [id]);
+  }, [organization?.id, id]);
 
   if (loading) {
     return (

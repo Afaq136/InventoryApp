@@ -3,11 +3,18 @@ import { collection, getDocs, query, orderBy, onSnapshot } from "firebase/firest
 import { db } from "@firebaseConfig";
 
 export const subscribeToItemHistory = (
+  organizationId: string, 
   itemId: string,
   callback: (history: ItemHistoryEntry[]) => void
 ): () => void => {
+
+  if (!organizationId){
+    console.error("subscribeToItemHistory", "No organizationId provided");
+    return () => {};
+  }
+
   // Reference to the snapshots subcollection of the item
-  const snapshotsRef = collection(db, `items/${itemId}/snapshots`);
+  const snapshotsRef = collection(db, `organizations/${organizationId}/items/${itemId}/snapshots`);
 
   // Query to order by timestamp (descending for latest first)
   const q = query(snapshotsRef, orderBy("timestamp", "desc"));
@@ -38,33 +45,6 @@ export const subscribeToItemHistory = (
   return unsubscribe;
 };
 
-export const fetchItemHistory = async (
-  itemId: string
-): Promise<ItemHistoryEntry[]> => {
-  try {
-    const snapshotsRef = collection(db, `items/${itemId}/snapshots`);
-    
-    const q = query(snapshotsRef, orderBy("timestamp", "desc"));
-
-    const querySnapshot = await getDocs(q);
-
-    const history: ItemHistoryEntry[] = querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        itemId,
-        timestamp: data.timestamp,
-        changes: data.changes,
-        description: data.description,
-      } as ItemHistoryEntry;
-    });
-
-    return history;
-  } catch (error) {
-    console.error("Error fetching item history:", error);
-    return [];
-  }
-};
-
 //Returns an object with only fields that have changed (excluding the id)
 export function getChangedFields(
   oldItem: Item,
@@ -90,7 +70,6 @@ export function getChangedFields(
       changes[key as keyof Omit<Item, 'id'>] = newValue as any;
     }
   }
-
   return changes;
 }
 

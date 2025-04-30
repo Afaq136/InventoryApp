@@ -42,6 +42,8 @@ export const getDynamicStyles = (darkMode: boolean) => StyleSheet.create(
 
     headerTextStyle: tw`text-xl font-bold m-2`,
 
+    center: tw`flex-1 justify-center items-center`,
+
     itemStyle: tw`${darkMode ? "bg-gray-800" : "bg-white"} p-5 border border-gray-700 rounded-2xl m-1`,
     row: tw`flex-row justify-between items-center`,
     modalContainer: {
@@ -65,5 +67,6 @@ export const getDynamicStyles = (darkMode: boolean) => StyleSheet.create(
     }, 
     folder: tw`${darkMode ? "bg-gray-800" : "bg-white"} border border-cyan-500 rounded-2xl p-5 mb-4`,
     selectedFolder: tw`${darkMode ? "bg-cyan-800" : "bg-gray-200"} border border-cyan-500 rounded-2xl p-5 mb-4`,
-    addButton: tw`bg-cyan-500 p-2 rounded`
+    addButton: tw`bg-cyan-500 p-2 rounded`,
+    verticalButtonModalContainer: tw`absolute top-1/2 left-5 right-5 ${ darkMode ? "bg-gray-700" : "bg-white" } p-5 rounded-xl shadow-md`,
   })

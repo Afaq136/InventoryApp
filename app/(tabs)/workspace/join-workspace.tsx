@@ -13,9 +13,12 @@ import tw from "twrnc";
 import { useTheme } from "@darkModeContext";
 import { useOrganizationList, useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
+import { getDynamicStyles } from "@styles";
 
 export default function JoinWorkspace() {
   const { darkMode } = useTheme();
+
+  const dynamicStyles = getDynamicStyles(darkMode);
 
   // https://clerk.com/docs/hooks/use-organization-list
   const { isLoaded, userInvitations, setActive } = useOrganizationList({
@@ -64,17 +67,13 @@ export default function JoinWorkspace() {
   const renderUserInvite = ({ item }: any) => {
     return (
       <View style={styles.contributor}>
-        <Text>{item.emailAddress}</Text>
         <Text>{item.publicOrganizationData.name}</Text>
         <Text>{item.role}</Text>
         <TouchableOpacity
           onPress={async () => {
             try {
               await item.accept();
-
               userInvitations.revalidate();
-
-              setActive({ organization: item.organization.id });
 
               Alert.alert(
                 "Success",
@@ -85,7 +84,7 @@ export default function JoinWorkspace() {
             }
           }}
         >
-          <Ionicons name="checkbox-outline" size={20} color="green" />
+          <Ionicons name="checkbox-outline" size={20} color="#00bcd4" />
         </TouchableOpacity>
       </View>
     );
@@ -98,17 +97,27 @@ export default function JoinWorkspace() {
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
+      <Text style={[dynamicStyles.textStyle]}>
+        You are signed in as {String(user.primaryEmailAddress)}
+      </Text>
       {/* User Invitation List */}
       {userInvitations.data && userInvitations.data.length > 0 ? (
         <>
           <Text style={[styles.title, darkMode && { color: "white" }]}>
             Invitations
           </Text>
-          <FlatList
-            data={userInvitations.data}
-            keyExtractor={(item: any) => item.id}
-            renderItem={renderUserInvite}
-          />
+          {userInvitations.isFetching ? (
+            <View style={styles.center}>
+              <ActivityIndicator size="large" />
+              <Text>Loading...</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={userInvitations.data}
+              keyExtractor={(item: any) => item.id}
+              renderItem={renderUserInvite}
+            />
+          )}
         </>
       ) : (
         <Text style={[darkMode && { color: "white" }]}>

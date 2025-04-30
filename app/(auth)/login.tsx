@@ -39,24 +39,15 @@ export default function Login() {
 
   const { signIn, setActive, isLoaded } = useSignIn();
 
-  //Commented out because it could cause issues
-  /*
   useEffect(() => {
     // If user is already signed in, redirect to dashboard
     if (isSignedIn) {
       router.replace("/(tabs)/dashboard");
     }
   }, [isSignedIn, router]);
-  */
 
   const handleGoogleSignIn = async () => {
     try {
-      // If already signed in, skip Google Sign-In
-      if (isSignedIn) {
-        router.replace("/(tabs)/dashboard");
-        return;
-      }
-
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: "oauth_google",
       });
@@ -82,9 +73,6 @@ export default function Login() {
 
         console.log("Firebase User:", firebaseUser);
         console.log("User email from Clerk:", email);
-
-        // Redirect after login
-        router.replace("/(tabs)/dashboard");
       }
     } catch (error) {
       console.error("Error during Google Sign-In:", error);
@@ -113,7 +101,7 @@ export default function Login() {
   const onSignInPress = async () => {
     if (!isLoaded) return;
 
-    const emailRegex = /^[^@]+@[\w.-]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     if (!emailRegex.test(emailAddress)) {
       alert("Please enter a valid email address.");
@@ -128,10 +116,8 @@ export default function Login() {
       });
 
       // If sign-in process is complete, set the created session as active
-      // and redirect the user
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
-        router.replace("/");
       } else {
         // If the status isn't complete, check why. User might need to
         // complete further steps.
@@ -258,16 +244,6 @@ export default function Login() {
           </Text>
           <View style={tw`flex-1 h-px bg-gray-300`} />
         </View>
-
-        <TouchableOpacity
-          style={[
-            tw`bg-black text-white py-2 px-4 rounded-lg mb-4`,
-            darkMode && { backgroundColor: "#111827" },
-          ]}
-        >
-          <Text style={tw`text-white text-center`}>Sign in with Apple</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity
           style={[
             tw`bg-red-500 text-white py-2 px-4 rounded-lg`,

@@ -12,13 +12,16 @@
         "services/itemService.ts"
       ],
       "@darkModeContext" : [
-        "app/context/DarkModeContext.tsx"
+        "contexts/DarkModeContext.tsx"
+      ],
+      "@authContext" : [
+        "contexts/auth.tsx"
+      ],
+      "@itemStatsContext" : [
+        "contexts/ItemStatsContext.tsx"
       ],
       "@styles" : [
         "styles/styles.ts"
-      ],
-      "@authContext" : [
-        "app/context/auth.tsx"
       ],
       "@/*": [
         "./*"

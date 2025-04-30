@@ -8,11 +8,16 @@ import { getDynamicStyles } from "@styles";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface ItemCardProps {
+  organizationID: string;
   item: Item;
-  removeItem: (id: string) => Promise<boolean>;
+  removeItem: (organizationID: string, itemID: string) => Promise<boolean>;
 }
 
-const ItemCard: React.FC<ItemCardProps> = ({ item, removeItem }) => {
+const ItemCard: React.FC<ItemCardProps> = ({
+  organizationID,
+  item,
+  removeItem,
+}) => {
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
 
   const { darkMode } = useTheme();
@@ -33,7 +38,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, removeItem }) => {
           <TouchableOpacity
             style={dynamicStyles.redButtonStyle}
             onPress={async () => {
-              const removed = await removeItem(item.id); //remove the item based on the item id
+              const removed = await removeItem(organizationID, item.id); //remove the item based on the item id
               //only reload the page if items are actually removed
               if (removed) {
                 //success!
@@ -97,12 +102,14 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, removeItem }) => {
         <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
           Price:
         </Text>{" "}
-        <Text style={dynamicStyles.textStyle}>{item.price}</Text>
+        <Text style={dynamicStyles.textStyle}>${item.price.toFixed(2)}</Text>
         {"\n"}
         <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
           Total Value:
         </Text>{" "}
-        <Text style={dynamicStyles.textStyle}>{item.totalValue}</Text>
+        <Text style={dynamicStyles.textStyle}>
+          ${(item.price * item.quantity).toFixed(2)}
+        </Text>
       </Text>
       {item.location && (
         <Text style={[tw`font-bold`, dynamicStyles.textStyle]}>

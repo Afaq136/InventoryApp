@@ -3,10 +3,10 @@ import { View, ActivityIndicator } from "react-native";
 import { Stack } from "expo-router";
 import { AuthProvider, useAuth } from "@authContext";
 import { ThemeProvider } from "@darkModeContext";
-import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
+import { ClerkProvider, ClerkLoaded, useOrganization } from "@clerk/clerk-expo";
 import { tokenCache } from "@/cache";
 import SplashScreenComponent from "./SplashScreen"; // Import animated splash screen
-import { ItemStatsProvider } from "@/app/context/ItemStatsContext";
+import { ItemStatsProvider } from "@itemStatsContext";
 
 // Retrieve the publishable key for Clerk from environmental variables
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;

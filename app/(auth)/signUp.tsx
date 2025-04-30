@@ -13,14 +13,14 @@ import {
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 import tw from "twrnc";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { FIREBASE_AUTH } from "@firebaseConfig";
 import { useTheme } from "@darkModeContext";
-import { useSignUp } from "@clerk/clerk-expo";
+import { useAuth, useSignUp, useSSO } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
-
+import { signInWithCustomToken } from "firebase/auth";
 
 export default function SignUp() {
   const { darkMode } = useTheme();
@@ -37,6 +37,51 @@ export default function SignUp() {
   const router = useRouter();
   const [pendingVerification, setPendingVerification] = useState(false);
   const [code, setCode] = useState("");
+
+  const { startSSOFlow } = useSSO();
+
+  const { getToken, isSignedIn } = useAuth(); // Use isSignedIn from Clerk
+
+  useEffect(() => {
+    // If user is already signed in, redirect to dashboard
+    if (isSignedIn) {
+      router.replace("/(tabs)/dashboard");
+    }
+  }, [isSignedIn, router]);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { createdSessionId, setActive } = await startSSOFlow({
+        strategy: "oauth_google",
+      });
+
+      if (setActive && createdSessionId) {
+        await setActive({ session: createdSessionId });
+
+        // Get Firebase authentication token from Clerk
+        const token = await getToken({ template: "integration_firebase" });
+        if (!token)
+          throw new Error("Failed to retrieve Firebase token from Clerk");
+
+        // Fetch Clerk user data
+        const userData = await fetch("https://api.clerk.dev/v1/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        }).then((res) => res.json());
+
+        const email = userData?.primary_email_address;
+
+        // Sign in with Firebase using Clerk's token
+        const userCredential = await signInWithCustomToken(auth, token);
+        const firebaseUser = userCredential.user;
+
+        console.log("Firebase User:", firebaseUser);
+        console.log("User email from Clerk:", email);
+      }
+    } catch (error) {
+      console.error("Error during Google Sign-In:", error);
+      alert("Google Sign-In failed.");
+    }
+  };
 
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
@@ -162,7 +207,7 @@ export default function SignUp() {
           >
             We've sent a verification code to your email. Please enter it below.
           </Text>
-  
+
           <TextInput
             value={code}
             placeholder="Verification code"
@@ -178,7 +223,7 @@ export default function SignUp() {
               },
             ]}
           />
-  
+
           <TouchableOpacity onPress={onVerifyPress}>
             <View
               style={[
@@ -196,11 +241,22 @@ export default function SignUp() {
               </Text>
             </View>
           </TouchableOpacity>
-  
+
           <Text style={[tw`text-sm`, darkMode && { color: "#d1d5db" }]}>
             Didn't receive the code?
           </Text>
-          <TouchableOpacity onPress={() => signUp.prepareEmailAddressVerification({ strategy: "email_code" })}>
+          <TouchableOpacity
+            onPress={() => {
+              if (!signUp) {
+                Alert.alert("Error", "Sign-up.tsx: Sign-up is undefined.");
+                return;
+              }
+
+              signUp.prepareEmailAddressVerification({
+                strategy: "email_code",
+              });
+            }}
+          >
             <Text
               style={[
                 tw`text-green-500 font-bold`,
@@ -210,7 +266,7 @@ export default function SignUp() {
               Resend Code
             </Text>
           </TouchableOpacity>
-  
+
           <StatusBar style={darkMode ? "light" : "auto"} />
         </View>
       </TouchableWithoutFeedback>
@@ -370,17 +426,8 @@ export default function SignUp() {
             </Text>
             <View style={tw`flex-1 h-px bg-gray-300`} />
           </View>
-
           <TouchableOpacity
-            style={[
-              tw`bg-black text-white py-2 px-4 rounded-lg mb-4`,
-              darkMode && { backgroundColor: "#111827" },
-            ]}
-          >
-            <Text style={tw`text-white text-center`}>Sign up with Apple</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
+            onPress={handleGoogleSignIn}
             style={[
               tw`bg-red-500 text-white py-2 px-4 rounded-lg`,
               darkMode && { backgroundColor: "#ef4444" },

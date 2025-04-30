@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, Animated } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import tw from "twrnc";
 import { useRouter } from "expo-router";
-import { useTheme } from "./context/DarkModeContext";
+import { useTheme } from "@darkModeContext";
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-expo";
 import { useOrganization } from "@clerk/clerk-expo";
 

@@ -1,4 +1,4 @@
-import { Timestamp } from "firebase/firestore";
+import { GeoPoint, Timestamp } from "firebase/firestore";
 
 export interface Item {
   id: string;
@@ -8,9 +8,10 @@ export interface Item {
   minLevel: number;
   quantity: number;
   price: number;
-  totalValue: number;
   qrValue?: string;
-  location?: string;
+  location: string;
+  createdAt?: Timestamp; //Creation timestamp
+  editedAt?: Timestamp; //Last edit timestamp
 }
 
 export interface ItemHistoryEntry {
@@ -20,6 +21,16 @@ export interface ItemHistoryEntry {
   description: string;
 }
 
+export interface ItemLocation {
+  id: string;
+  name: string;
+  coordinates: GeoPoint;
+}
+
 export type ItemsByFolder = {
   [folderName: string]: Item[];
+};
+
+export type CategoryStats = {
+  [name: string]: {totalQuantity: number, totalValue: number};
 };
