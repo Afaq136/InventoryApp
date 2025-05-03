@@ -1,18 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { Pressable, View, Text, StyleSheet, SafeAreaView, FlatList } from "react-native";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import tw from "twrnc";
 import { useTheme } from "@darkModeContext";
 
-import { useItemStats } from "@itemStatsContext"; // 🛑 You need to bring this in to access low stock data
+import { useItemStats } from "@itemStatsContext"; 
 
 export default function Notifications() {
   const router = useRouter();
   const { darkMode } = useTheme();
-  const { lowStockItemsByFolder } = useItemStats(); // ✅ Access low stock items
+  const { lowStockItemsByFolder } = useItemStats();
 
-  const notifications = [];
+  type Notification = {
+    id?: string;
+    title?: string;
+    description?: string;
+    date?: string;
+    folderName: string;
+    itemName: string;
+    quantity: number;
+  };
+  
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  
 
   // Flatten the folders and items into a single array of notifications
   for (const folderName in lowStockItemsByFolder) {
