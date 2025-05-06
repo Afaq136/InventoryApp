@@ -9,15 +9,17 @@ import {
   FlatList,
   Text,
   TouchableWithoutFeedback,
+  TouchableOpacity,
 } from "react-native";
 import { useTheme } from "@darkModeContext"; // Import the theme context
 import { useItemStats } from "@itemStatsContext";
-import { addItemLocation } from "@itemsService";
+import { addItemLocation, removeItemLocation } from "@itemLocationService";
 import { useOrganization } from "@clerk/clerk-expo";
 import { GeoPoint } from "firebase/firestore";
 import { ItemLocation } from "@/types/types";
 import { getDynamicStyles } from "@styles";
 import { Keyboard } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function MyLocations() {
   // https://clerk.com/docs/hooks/use-organization
@@ -29,8 +31,6 @@ export default function MyLocations() {
   const dynamicStyles = getDynamicStyles(darkMode);
 
   const [locationName, setLocationName] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
   const [address, setAddress] = useState("");
   const [locations, setLocations] = useState([
     {
@@ -84,14 +84,12 @@ export default function MyLocations() {
 
   const handleAddLocation = async () => {
     try {
-      // Convert latitude and longitude to numbers
-      const lat = parseFloat(latitude);
-      const lon = parseFloat(longitude);
-
-      if (isNaN(lat) || isNaN(lon)) {
-        Alert.alert("Invalid latitude or longitude");
+      if (!address.trim()) {
+        Alert.alert("Please enter an address");
         return;
       }
+
+      const { lat, lng } = await geocodeAddress(address);
 
       if (!locationName.trim()) {
         Alert.alert("Please enter a location name");
@@ -106,7 +104,7 @@ export default function MyLocations() {
       // Create the ItemLocation object
       const newItemLocation: Omit<ItemLocation, "id"> = {
         name: locationName,
-        coordinates: new GeoPoint(lat, lon), // GeoPoint constructor
+        coordinates: new GeoPoint(lat, lng), // GeoPoint constructor
       };
 
       // Call the function to add the location to Firestore
@@ -114,6 +112,9 @@ export default function MyLocations() {
 
       if (success) {
         Alert.alert("Success", "Location added successfully!");
+
+        setLocationName("");
+        setAddress("");
       }
     } catch (error) {
       // Extract meaningful error message
@@ -124,10 +125,20 @@ export default function MyLocations() {
   };
 
   const geocodeAddress = async (address: string) => {
-    // Mock function for geocoding
-    // Replace with actual API call to a geocoding service
+    const apiKey = process.env.EXPO_PUBLIC_GEOCODING_API_KEY;
+    const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(
+      address
+    )}&key=${apiKey}`;
 
-    return { latitude: 40.730762, longitude: -73.452666 }; // Example coordinates
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.results.length > 0) {
+      const { lat, lng } = data.results[0].geometry;
+      return { lat, lng };
+    } else {
+      throw new Error("No results found");
+    }
   };
 
   return (
@@ -144,18 +155,6 @@ export default function MyLocations() {
           placeholder="Enter Location Name"
           value={locationName}
           onChangeText={setLocationName}
-        />
-        <TextInput
-          style={styles.addressInput}
-          placeholder="Enter Latitude"
-          value={latitude}
-          onChangeText={setLatitude}
-        />
-        <TextInput
-          style={styles.addressInput}
-          placeholder="Enter Longitude"
-          value={longitude}
-          onChangeText={setLongitude}
         />
         <Button title="Add Location" onPress={handleAddLocation} />
         <MapView
@@ -182,10 +181,33 @@ export default function MyLocations() {
           data={itemLocations}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View style={styles.locationItem}>
-              <Text style={{ color: darkMode ? "white" : "black" }}>
-                {item.name}
-              </Text>
+            <View style={dynamicStyles.card}>
+              <Text style={dynamicStyles.textStyle}>{item.name}</Text>
+              <TouchableOpacity
+                onPress={async () => {
+                  try {
+                    const result = await removeItemLocation(
+                      organization.id,
+                      item.name
+                    );
+                    if (result.success) {
+                      Alert.alert(
+                        "Success",
+                        `Successfully removed ${item.name}`
+                      );
+                    } else {
+                      Alert.alert("Failure", result.errorMessage);
+                    }
+                  } catch (error: any) {
+                    Alert.alert(
+                      "Error",
+                      error.message || "Something went wrong"
+                    );
+                  }
+                }}
+              >
+                <Ionicons name="trash-outline" size={20} color="red" />
+              </TouchableOpacity>
             </View>
           )}
         />

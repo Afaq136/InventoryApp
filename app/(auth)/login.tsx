@@ -13,10 +13,7 @@ import {
 import { Link } from "expo-router";
 import tw from "twrnc";
 import { FIREBASE_AUTH } from "@firebaseConfig";
-import {
-  signInWithEmailAndPassword,
-  signInWithCustomToken,
-} from "firebase/auth";
+import { signInWithCustomToken } from "firebase/auth";
 import { useState, useEffect } from "react";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -29,34 +26,27 @@ import { useSignIn } from "@clerk/clerk-expo";
 export default function Login() {
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
-  const auth = FIREBASE_AUTH;
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const { darkMode } = useTheme();
   const { startSSOFlow } = useSSO();
-  const { getToken, isSignedIn } = useAuth(); // Use isSignedIn from Clerk
   const router = useRouter();
+
+  const { getToken, isSignedIn } = useAuth();
 
   const { signIn, setActive, isLoaded } = useSignIn();
 
-  //Commented out because it could cause issues
-  /*
+  const auth = FIREBASE_AUTH;
+
   useEffect(() => {
     // If user is already signed in, redirect to dashboard
     if (isSignedIn) {
       router.replace("/(tabs)/dashboard");
     }
   }, [isSignedIn, router]);
-  */
 
   const handleGoogleSignIn = async () => {
     try {
-      // If already signed in, skip Google Sign-In
-      if (isSignedIn) {
-        router.replace("/(tabs)/dashboard");
-        return;
-      }
-
       const { createdSessionId, setActive } = await startSSOFlow({
         strategy: "oauth_google",
       });
@@ -64,50 +54,13 @@ export default function Login() {
       if (setActive && createdSessionId) {
         await setActive({ session: createdSessionId });
 
-        // Get Firebase authentication token from Clerk
-        const token = await getToken({ template: "integration_firebase" });
-        if (!token)
-          throw new Error("Failed to retrieve Firebase token from Clerk");
-
-        // Fetch Clerk user data
-        const userData = await fetch("https://api.clerk.dev/v1/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        }).then((res) => res.json());
-
-        const email = userData?.primary_email_address;
-
-        // Sign in with Firebase using Clerk's token
-        const userCredential = await signInWithCustomToken(auth, token);
-        const firebaseUser = userCredential.user;
-
-        console.log("Firebase User:", firebaseUser);
-        console.log("User email from Clerk:", email);
-
-        // Redirect after login
-        router.replace("/(tabs)/dashboard");
+        await signIntoFirebaseWithClerk();
       }
     } catch (error) {
       console.error("Error during Google Sign-In:", error);
       alert("Google Sign-In failed.");
     }
   };
-
-  //Old signIn function
-  /*
-  const signIn = async () => {
-    setLoading(true);
-    try {
-      const response = await signInWithEmailAndPassword(auth, email, password);
-      console.log(response);
-      alert("Login Successful");
-    } catch (error) {
-      console.error(error);
-      alert("Login Failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-  */
 
   // Handle the submission of the sign-in form
   const onSignInPress = async () => {
@@ -120,6 +73,8 @@ export default function Login() {
       return;
     }
 
+    setLoading(true);
+
     // Start the sign-in process using the email and password provided
     try {
       const signInAttempt = await signIn.create({
@@ -128,10 +83,10 @@ export default function Login() {
       });
 
       // If sign-in process is complete, set the created session as active
-      // and redirect the user
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
-        router.replace("/");
+
+        await signIntoFirebaseWithClerk();
       } else {
         // If the status isn't complete, check why. User might need to
         // complete further steps.
@@ -141,7 +96,19 @@ export default function Login() {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
       console.error(JSON.stringify(err, null, 2));
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const signIntoFirebaseWithClerk = async () => {
+    //Get a firebase compatible custom token from Clerk
+    const token = await getToken({ template: "integration_firebase" });
+
+    if (!token) throw new Error("Failed to retrieve Firebase token from Clerk");
+
+    const userCredentials = await signInWithCustomToken(auth, token || "");
+    console.log("User:", userCredentials.user);
   };
 
   return (
@@ -237,6 +204,7 @@ export default function Login() {
             darkMode && { backgroundColor: "#3b82f6" },
           ]}
           onPress={onSignInPress}
+          disabled={loading}
         >
           <Text
             style={[
@@ -244,7 +212,7 @@ export default function Login() {
               darkMode && { color: "#f3f4f6" },
             ]}
           >
-            Continue
+            {loading ? "Logging In..." : "Continue"}
           </Text>
         </TouchableOpacity>
 

@@ -90,13 +90,16 @@ const ItemCard: React.FC<ItemCardProps> = ({
       {/* Second Row */}
       <Text>
         {/* Display quantity and minLevel as red if low, otherwise display as blue*/}
+        <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
+          Quantity:{" "}
+        </Text>
         <Text
           style={[
             tw`font-bold text-sm`,
             isLow ? dynamicStyles.redTextStyle : dynamicStyles.blueTextStyle,
           ]}
         >
-          {item.quantity} / {item.minLevel} Units
+          {item.quantity} / {item.minLevel}
         </Text>
         {"\n"}
         <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
@@ -112,8 +115,21 @@ const ItemCard: React.FC<ItemCardProps> = ({
         </Text>
       </Text>
       {item.location && (
-        <Text style={[tw`font-bold`, dynamicStyles.textStyle]}>
-          {item.location}
+        <Text>
+          <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
+            Location:
+          </Text>{" "}
+          <Text style={[dynamicStyles.textStyle]}>{item.location}</Text>
+        </Text>
+      )}
+      {item.tags.length > 0 && (
+        <Text>
+          <Text style={[tw`font-semibold`, dynamicStyles.textStyle]}>
+            Tags:
+          </Text>{" "}
+          <Text style={[tw`font-bold`, dynamicStyles.blueTextStyle]}>
+            {item.tags.join(", ")}
+          </Text>
         </Text>
       )}
     </View>

@@ -2,8 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   subscribeToCategories,
   subscribeToItems,
-  subscribeToItemLocations,
 } from "@/services/itemService";
+import { subscribeToItemLocations } from "@/services/itemLocationService";
 import {
   ItemsByFolder,
   CategoryStats,

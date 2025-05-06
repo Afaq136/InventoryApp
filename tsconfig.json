@@ -11,6 +11,9 @@
       "@itemsService": [
         "services/itemService.ts"
       ],
+      "@itemLocationService": [
+        "services/itemLocationService.ts"
+      ],
       "@darkModeContext" : [
         "contexts/DarkModeContext.tsx"
       ],
