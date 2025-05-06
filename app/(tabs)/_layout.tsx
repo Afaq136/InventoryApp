@@ -9,12 +9,17 @@ import { Text } from "react-native";
 import { useAuth, useOrganization } from "@clerk/clerk-expo";
 import { useEffect } from "react";
 import { View } from "react-native";
+import { useItemStats } from "@itemStatsContext";
 
 export default function TabLayout() {
   const { darkMode } = useTheme();
   const { isSignedIn } = useAuth();
-
   const { organization } = useOrganization();
+  const { lowStockItemsByFolder } = useItemStats();
+
+  const hasNotifications = Object.keys(lowStockItemsByFolder).some(
+    folderName => lowStockItemsByFolder[folderName].length > 0
+  );
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -59,12 +64,27 @@ export default function TabLayout() {
           title: "Dashboard",
           headerRight: () => (
             <TouchableOpacity onPress={() => router.push("/notifications")}>
-              <Ionicons
-                name="notifications-outline"
-                size={24}
-                color="#00bcd4"
-                style={tw`mx-2`}
-              />
+              <View>
+                <Ionicons
+                  name={hasNotifications ? "notifications" : "notifications-outline"}
+                  size={24}
+                  color="#00bcd4"
+                  style={tw`mx-2`}
+                />
+                {hasNotifications && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -5,
+                      left: 24,
+                      backgroundColor: "red",
+                      borderRadius: 5,
+                      width: 10,
+                      height: 10,
+                    }}
+                  />
+                )}
+              </View>
             </TouchableOpacity>
           ),
 

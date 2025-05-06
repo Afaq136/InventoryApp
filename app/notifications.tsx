@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pressable, View, Text, StyleSheet, SafeAreaView, FlatList } from "react-native";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -24,18 +24,20 @@ export default function Notifications() {
   
   const [notifications, setNotifications] = useState<Notification[]>([]);
   
-
-  // Flatten the folders and items into a single array of notifications
-  for (const folderName in lowStockItemsByFolder) {
-    const items = lowStockItemsByFolder[folderName];
-    items.forEach(item => {
-      notifications.push({
-        folderName,
-        itemName: item.name,
-        quantity: item.quantity,
+  useEffect(() => {
+    const generatedNotifications: Notification[] = [];
+    for (const folderName in lowStockItemsByFolder) {
+      const items = lowStockItemsByFolder[folderName];
+      items.forEach(item => {
+        generatedNotifications.push({
+          folderName,
+          itemName: item.name,
+          quantity: item.quantity,
+        });
       });
-    });
-  }
+    }
+    setNotifications(generatedNotifications);
+  }, [lowStockItemsByFolder]);
 
   return (
     <SafeAreaView

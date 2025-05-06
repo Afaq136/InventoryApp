@@ -201,7 +201,7 @@ export default function SignUp() {
           </Text>
           <TouchableOpacity
             onPress={() =>
-              signUp.prepareEmailAddressVerification({ strategy: "email_code" })
+              signUp?.prepareEmailAddressVerification({ strategy: "email_code" })
             }
           >
             <Text
