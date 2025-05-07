@@ -192,6 +192,16 @@ export default function Items() {
   const noSearchResults = Object.keys(filteredItems).length === 0;
   const emptyInventory = Object.keys(itemsByFolder).length === 0;
 
+  const totalItems = Object.values(itemsByFolder).reduce(
+    (sum, items) => sum + items.length,
+    0
+  );
+
+  const totalFilteredItems = Object.values(filteredItems).reduce(
+    (sum, items) => sum + items.length,
+    0
+  );
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[dynamicStyles.containerStyle]}>
@@ -256,11 +266,17 @@ export default function Items() {
                 ))}
               </View>
             )}
+            <View style={dynamicStyles.row}>
+              {/* Selected Filters */}
+              <Text style={dynamicStyles.textStyle}>
+                Selected: {selectedFilters.join(", ")}
+              </Text>
 
-            {/* Selected Filters */}
-            <Text style={dynamicStyles.textStyle}>
-              Selected: {selectedFilters.join(", ")}
-            </Text>
+              {/* Total items display */}
+              <Text style={dynamicStyles.textStyle}>
+                {totalFilteredItems} / {totalItems} items displayed
+              </Text>
+            </View>
           </>
         ) : (
           <View style={styles.emptyContainer}>
