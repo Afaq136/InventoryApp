@@ -217,17 +217,12 @@ export default function Items() {
         {!emptyInventory ? (
           <>
             {/* Search Bar */}
-            <View
-              style={[
-                styles.searchContainer,
-                darkMode && { backgroundColor: "#374151" },
-              ]}
-            >
+            <View style={[dynamicStyles.largeInputContainer]}>
               <TextInput
                 placeholder="Search"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                style={[styles.searchInput, darkMode && { color: "#fff" }]} // Ensure text color is visible in dark mode
+                style={[dynamicStyles.largeTextInput]} // Ensure text color is visible in dark mode
               />
 
               <TouchableOpacity
@@ -269,7 +264,7 @@ export default function Items() {
             <View style={dynamicStyles.row}>
               {/* Selected Filters */}
               <Text style={dynamicStyles.textStyle}>
-                Selected: {selectedFilters.join(", ")}
+                Filtering by: {selectedFilters.join(", ")}
               </Text>
 
               {/* Total items display */}
@@ -405,15 +400,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1F2937",
     padding: 20,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginBottom: 20,
-    backgroundColor: "#fff",
   },
   searchInput: {
     flex: 1,
