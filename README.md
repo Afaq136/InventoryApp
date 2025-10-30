@@ -3,6 +3,16 @@
 _A digital solution to streamline donation and supply management for relief and nonprofit organizations._  
 
 ---
+<p align="center">
+<img width="300" alt="image" href="https://github.com/user-attachments/assets/ad3d5867-67ca-4f75-bb53-8d68fb360eec" src="https://github.com/user-attachments/assets/ad3d5867-67ca-4f75-bb53-8d68fb360eec" />
+<img width="300" alt="item page" href="https://github.com/user-attachments/assets/63a68ce8-b5ad-4b18-ad65-5fed2504bef6" src="https://github.com/user-attachments/assets/63a68ce8-b5ad-4b18-ad65-5fed2504bef6"/>
+<img width="300" alt="analytics page" href="https://github.com/user-attachments/assets/5b79ff84-dc32-45cb-9934-a05b82dd52a6" src="https://github.com/user-attachments/assets/5b79ff84-dc32-45cb-9934-a05b82dd52a6" />
+  <br/>
+   <img width="300" alt="manage organization page" href="https://github.com/user-attachments/assets/9ef5d82d-f370-4a22-8404-88b1a56d4fc0" src="https://github.com/user-attachments/assets/9ef5d82d-f370-4a22-8404-88b1a56d4fc0" />
+<img width="300" alt="Join organization" href="https://github.com/user-attachments/assets/8cdf4a46-aa43-4115-8b8e-ffa6b7d91950" src="https://github.com/user-attachments/assets/8cdf4a46-aa43-4115-8b8e-ffa6b7d91950" />
+</p>
+
+
 
 ## 🏆 Mission & Vision  
 Our project aligns with the mission of **ICNA (Islamic Circle of North America)**, a leading Muslim organization providing community services and relief across the U.S. **ICNA Relief** focuses on:  
